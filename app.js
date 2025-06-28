@@ -1,59 +1,125 @@
-const pet = {
-  happiness: 100,
-  hunger: 100,
-  cleanliness: 100,
-  health: 100,
+const canvas = document.getElementById('pet-canvas');
+const ctx = canvas.getContext('2d');
+
+let pet = {
+  happiness: 50,
+  hunger: 50,
+  cleanliness: 50,
+  health: 50,
 };
+
+// Update UI stats
 function updateStats() {
   document.getElementById('happiness').textContent = pet.happiness;
   document.getElementById('hunger').textContent = pet.hunger;
   document.getElementById('cleanliness').textContent = pet.cleanliness;
   document.getElementById('health').textContent = pet.health;
 }
+
+// Draw simple pixel pet (pig face)
 function drawPet() {
-  const ctx = document.getElementById('pet-canvas').getContext('2d');
-  ctx.clearRect(0, 0, 160, 160);
-  ctx.fillStyle = '#0f0';
-  ctx.fillRect(60, 60, 40, 40);
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  // Pink square body
+  ctx.fillStyle = '#ff99cc';
+  ctx.fillRect(40, 40, 80, 80);
+  // Eyes
+  ctx.fillStyle = 'black';
+  ctx.fillRect(60, 70, 10, 10);
+  ctx.fillRect(90, 70, 10, 10);
+  // Nose
+  ctx.fillStyle = '#ff66aa';
+  ctx.fillRect(70, 100, 20, 15);
 }
-function decayStats() {
-  pet.happiness = Math.max(pet.happiness - 1, 0);
-  pet.hunger = Math.max(pet.hunger - 2, 0);
-  pet.cleanliness = Math.max(pet.cleanliness - 1, 0);
-  pet.health = Math.max(pet.health - 1, 0);
-  updateStats();
-  drawPet();
-  savePet();
-}
+
+// Basic interaction functions
 function feedPet() {
-  pet.hunger = Math.min(pet.hunger + 20, 100);
+  pet.hunger = Math.max(0, pet.hunger - 15);
+  pet.happiness = Math.min(100, pet.happiness + 5);
   updateStats();
+  registerBackgroundSync('sync-feed-pet');
 }
+
 function playWithPet() {
-  pet.happiness = Math.min(pet.happiness + 20, 100);
+  pet.happiness = Math.min(100, pet.happiness + 10);
+  pet.hunger = Math.min(100, pet.hunger + 5);
   updateStats();
 }
+
 function cleanPet() {
-  pet.cleanliness = Math.min(pet.cleanliness + 20, 100);
+  pet.cleanliness = 100;
+  pet.happiness = Math.min(100, pet.happiness + 5);
   updateStats();
 }
+
 function sleepPet() {
-  pet.happiness = Math.min(pet.happiness + 10, 100);
-  pet.health = Math.min(pet.health + 10, 100);
+  pet.health = Math.min(100, pet.health + 10);
+  pet.hunger = Math.min(100, pet.hunger + 10);
   updateStats();
 }
+
 function healPet() {
-  pet.health = Math.min(pet.health + 30, 100);
+  pet.health = 100;
+  pet.happiness = Math.min(100, pet.happiness + 5);
   updateStats();
 }
-function savePet() {
-  localStorage.setItem("retroPet", JSON.stringify(pet));
+
+// Background sync registration (generalized tag)
+function registerBackgroundSync(tag) {
+  if ('serviceWorker' in navigator && 'SyncManager' in window) {
+    navigator.serviceWorker.ready.then(registration => {
+      registration.sync.register(tag).then(() => {
+        console.log(`Background sync registered for ${tag}`);
+      }).catch(err => {
+        console.log('Background sync registration failed:', err);
+      });
+    });
+  }
 }
-function loadPet() {
-  const saved = JSON.parse(localStorage.getItem("retroPet"));
-  if (saved) Object.assign(pet, saved);
+
+// Push notification subscription
+
+function askPushPermissionAndSubscribe() {
+  if (!('Notification' in window) || !('serviceWorker' in navigator) || !('PushManager' in window)) {
+    console.log('Push messaging not supported');
+    return;
+  }
+
+  Notification.requestPermission().then(permission => {
+    if (permission === 'granted') {
+      subscribeUserToPush();
+    } else {
+      console.log('Push permission denied');
+    }
+  });
 }
-loadPet();
-updateStats();
-drawPet();
-setInterval(decayStats, 60000);
+
+function subscribeUserToPush() {
+  navigator.serviceWorker.ready.then(registration => {
+    // TODO: Replace with your own VAPID public key for production
+    const vapidPublicKey = 'BOrX-ZnfnDcU7wXcmnI7kVvIVFQeZzxpDvLrFqXdeB-lKQAzP8Hy2LqzWdN-s2Yfr3Kr-Q8OjQ_k3X1KNk1-7LI';
+    const convertedVapidKey = urlBase64ToUint8Array(vapidPublicKey);
+    registration.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: convertedVapidKey
+    }).then(subscription => {
+      console.log('User subscribed to push:', subscription);
+      // TODO: Send subscription to your server
+    }).catch(err => {
+      console.log('Failed to subscribe user:', err);
+    });
+  });
+}
+
+function urlBase64ToUint8Array(base64String) {
+  const padding = '='.repeat((4 - base64String.length % 4) % 4);
+  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+  const rawData = window.atob(base64);
+  return Uint8Array.from([...rawData].map(char => char.charCodeAt(0)));
+}
+
+// Initialize app
+window.onload = () => {
+  drawPet();
+  updateStats();
+  askPushPermissionAndSubscribe();
+};
