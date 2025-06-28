@@ -4,24 +4,77 @@ const ctx = canvas.getContext('2d');
 const petImg = new Image();
 petImg.src = 'icon/icon-192.png';
 
+const width = 204;
+const height = 204;
+
+let petX = 0;
+let direction = 1; // 1 = moving right, -1 = moving left
+
+// Jump parameters
+const jumpDistance = 200;  // horizontal distance of one hop in pixels
+const jumpDuration = 100;  // number of animation frames per hop (higher = slower)
+const baseY = canvas.height / 2 - height / 2;
+const offset = 20;         // vertical offset so start/end aren’t on ground
+const jumpHeight = 60;     // max jump height above baseY + offset
+
+let frame = 0;
+
+petImg.onload = () => {
+  requestAnimationFrame(animate);
+};
+
+function drawPet(x, y) {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  ctx.save();
+
+  // Flip image horizontally when moving left
+  if (direction === -1) {
+    ctx.translate(x + width / 2, 0);
+    ctx.scale(-1, 1);
+    ctx.translate(-(x + width / 2), 0);
+  }
+
+  ctx.drawImage(petImg, x, y, width, height);
+
+  ctx.restore();
+}
+
+function animate() {
+  frame++;
+  if (frame > jumpDuration) frame = 0;
+
+  // Progress of jump from 0 to 1
+  const progress = frame / jumpDuration;
+
+  // Vertical position follows a parabola: starts and ends at baseY + offset, peaks at jumpHeight above
+  const jumpY = baseY + offset + 4 * jumpHeight * progress * (1 - progress);
+
+  // Horizontal position moves steadily in current direction
+  petX += direction * (jumpDistance / jumpDuration);
+
+  // Reverse direction when hitting edges, and clamp position
+  if (petX + width > canvas.width) {
+    direction = -1;
+    petX = canvas.width - width;
+  } else if (petX < 0) {
+    direction = 1;
+    petX = 0;
+  }
+
+  drawPet(petX, jumpY);
+
+  requestAnimationFrame(animate);
+}
+
+// Stats and interactions below (kept unchanged)
+
 let pet = {
   happiness: 50,
   hunger: 50,
   cleanliness: 50,
   health: 50,
 };
-
-const hopWidth = 100;
-const hopHeight = 40;
-const hopDuration = 1700; // ms for one hop
-
-let petDirection = 1; // 1 for right, -1 for left
-let petFlip = false;
-
-let hopProgress = 0;  // 0..1 progress in current hop
-let petXStart = 0;    // starting x position of current hop
-
-let lastTime = null;
 
 function updateStats() {
   document.getElementById('happiness').textContent = pet.happiness;
@@ -30,72 +83,7 @@ function updateStats() {
   document.getElementById('health').textContent = pet.health;
 }
 
-function drawPet(x, y) {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  const width = 204;
-  const height = 204;
-
-  ctx.save();
-
-  if (petFlip) {
-    // flip horizontally around center of pet
-    ctx.translate(x + width / 2, 0);
-    ctx.scale(-1, 1);
-    ctx.translate(-x - width / 2, 0);
-  }
-
-  ctx.drawImage(petImg, x, y, width, height);
-  ctx.restore();
-}
-
-function animate(timestamp) {
-  if (!lastTime) lastTime = timestamp;
-  const deltaTime = timestamp - lastTime;
-  lastTime = timestamp;
-
-  // Update hopProgress [0,1]
-  hopProgress += deltaTime / hopDuration;
-  if (hopProgress > 1) hopProgress = 1;
-
-  // Use easing to slow down horizontally near the peak
-  // speed modulated by |cos(pi * hopProgress)|, integrated over progress:
-  // But since we control position directly by hopProgress, we can just ease hopProgress with easing function
-  // Let's use an ease-in-out function for smooth progress:
-  // easeInOutSine: f(t) = 0.5 * (1 - cos(pi * t))
-  const easedProgress = 0.5 * (1 - Math.cos(Math.PI * hopProgress));
-
-  // Calculate horizontal position based on start, direction and easedProgress
-  let petX = petXStart + petDirection * hopWidth * easedProgress;
-
-  // Calculate vertical position (arc)
-  const baseY = canvas.height / 2 - 204 / 2;
-  const petY = baseY - Math.sin(Math.PI * hopProgress) * hopHeight;
-
-  drawPet(petX, petY);
-
-  // If hop complete, reset for next hop
-  if (hopProgress >= 1) {
-    hopProgress = 0;
-
-    // Update petXStart for next hop
-    petXStart = petX;
-
-    // Check edges and flip direction and image if needed
-    if (petXStart + 204 >= canvas.width) {
-      petXStart = canvas.width - 204;
-      petDirection = -1;
-      petFlip = true;
-    } else if (petXStart <= 0) {
-      petXStart = 0;
-      petDirection = 1;
-      petFlip = false;
-    }
-  }
-
-  requestAnimationFrame(animate);
-}
-
-// Interaction functions with stats update
+// Interaction functions
 function feedPet() {
   pet.hunger = Math.max(0, pet.hunger - 15);
   pet.happiness = Math.min(100, pet.happiness + 5);
@@ -178,15 +166,8 @@ function urlBase64ToUint8Array(base64String) {
   return Uint8Array.from([...rawData].map(char => char.charCodeAt(0)));
 }
 
-// Initialize app
 window.onload = () => {
   updateStats();
-
-  if (petImg.complete) {
-    requestAnimationFrame(animate);
-  } else {
-    petImg.onload = () => requestAnimationFrame(animate);
-  }
-
   askPushPermissionAndSubscribe();
+  // Animation starts when image is loaded (handled by petImg.onload above)
 };
