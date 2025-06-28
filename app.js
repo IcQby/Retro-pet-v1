@@ -6,9 +6,9 @@ petImg.src = 'icon/icon-192.png';
 
 const width = 100;
 const height = 100;
-const groundY = canvas.height - height - 20; // vertical position baseline
+const groundY = canvas.height - height - 20; // ~180px for 300 height
 
-let petX = canvas.width; // start just offscreen right
+let petX = canvas.width; // Start just off-screen right
 let petY = groundY;
 
 let slidingIn = true;
@@ -16,11 +16,9 @@ let slidingIn = true;
 let vx = 0;
 let vy = 0;
 let gravity = 0.4;
-let jumpTimer = 0;
 let direction = -1; // -1 = left, 1 = right
 
-const jumpDuration = 1700; // 1.7 seconds total
-const frameRate = 1000 / 60;
+const jumpDuration = 1700; // milliseconds
 
 petImg.onload = () => {
   requestAnimationFrame(animate);
