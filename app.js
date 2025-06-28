@@ -30,6 +30,7 @@ function startJump() {
   vy = -speed * Math.sin(angle);
 }
 
+
 function animate() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -47,25 +48,24 @@ function animate() {
     petX += vx;
     petY += vy;
 
-    if (petY >= groundY) {
-      petY = groundY;
-
-      if (petX <= 0) {
-        petX = 0;
-        direction = 1;
-        facing = 1;
-        startJump();
-      } else if (petX + width >= canvas.width) {
-        petX = canvas.width - width;
-        direction = -1;
-        facing = -1;
-        startJump();
-      } else {
-        startJump();
-      }
+    // Bounce horizontally if pig hits canvas sides (even mid-air)
+    if (petX <= 0) {
+      petX = 0;
+      direction = 1;
+      facing = 1;
+      vx = Math.abs(vx);  // reverse horizontal velocity
+    } else if (petX + width >= canvas.width) {
+      petX = canvas.width - width;
+      direction = -1;
+      facing = -1;
+      vx = -Math.abs(vx);
     }
 
-    vx = direction * Math.abs(vx);
+    // When landing on ground, reset vertical position and jump again
+    if (petY >= groundY) {
+      petY = groundY;
+      startJump();
+    }
   }
 
   ctx.save();
@@ -85,8 +85,6 @@ function animate() {
 petImg.onload = () => {
   animate();
 };
-
-// Your other code below unchanged
 
 
 
