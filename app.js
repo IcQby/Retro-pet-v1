@@ -63,15 +63,16 @@ function animate() {
 
   ctx.save();
 
-  // Flip if moving left
-  if (direction === -1) {
-    ctx.translate(petX + width / 2, 0);
-    ctx.scale(-1, 1);
-    ctx.translate(-(petX + width / 2), 0);
-  }
+if (direction === -1 || slidingIn) {
+  // Flip horizontally around the center of the image
+  ctx.translate(petX + width / 2, 0);
+  ctx.scale(-1, 1);
+  ctx.translate(-(petX + width / 2), 0);
+}
 
-  ctx.drawImage(petImg, petX, petY, width, height);
-  ctx.restore();
+ctx.drawImage(petImg, petX, petY, width, height);
+ctx.restore();
+
 
   requestAnimationFrame(animate);
 }
