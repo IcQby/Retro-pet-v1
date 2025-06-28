@@ -1,27 +1,28 @@
 const canvas = document.getElementById('pet-canvas');
 const ctx = canvas.getContext('2d');
-canvas.width = 600;
+canvas.width = 500;  // your changed width
 canvas.height = 300;
 
 const width = 100, height = 100;
 const groundY = canvas.height - height - 20;
 
 let petImgLeft = new Image();
-petImgLeft.src = 'icon/icon-192.png';
-
 let petImgRight = new Image();
 
-let petX = canvas.width / 2 - width / 2; // Start centered horizontally
-let petY = groundY; // On the ground
-let vx = 0, vy = 0;
-let direction = -1; // Start moving left
-let facing = direction;
+petImgLeft.src = 'icon/icon-192.png';
+petImgRight.src = 'icon/icon-192.png';  // Replace with a right-facing image if you have
+
+let petX = canvas.width - width - 10, petY = groundY;
+let vx = 0, vy = 0, gravity = 0.4;
+let direction = -1, facing = -1;
 
 function startJump() {
   const speed = 6, angle = Math.PI * 65 / 180;
   vx = direction * speed * Math.cos(angle);
   vy = -speed * Math.sin(angle);
 }
+
+startJump();
 
 function animate() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -30,7 +31,6 @@ function animate() {
   petX += vx;
   petY += vy;
 
-  // Clamp horizontal position & reverse velocity/direction on edges
   if (petX <= 0) {
     petX = 0;
     direction = 1;
@@ -43,16 +43,13 @@ function animate() {
     vx = -Math.abs(vx);
   }
 
-  // Clamp vertical position to ground and ceiling
   if (petY >= groundY) {
     petY = groundY;
     startJump();
-  } else if (petY < 0) {
-    petY = 0;
-    vy = 0; // Stop going above top
   }
 
-  ctx.strokeStyle = 'red';
+  // Draw bounding box in yellow for debugging
+  ctx.strokeStyle = 'yellow';
   ctx.lineWidth = 2;
   ctx.strokeRect(petX, petY, width, height);
 
@@ -64,6 +61,19 @@ function animate() {
 
   requestAnimationFrame(animate);
 }
+
+// Wait for both images to load before starting animation
+let imagesLoaded = 0;
+function onImageLoad() {
+  imagesLoaded++;
+  if (imagesLoaded === 2) {
+    animate();
+  }
+}
+
+petImgLeft.onload = onImageLoad;
+petImgRight.onload = onImageLoad;
+
 
 
 // --- Stats and interactions below (unchanged) ---
