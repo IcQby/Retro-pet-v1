@@ -1,3 +1,4 @@
+
 const canvas = document.getElementById('pet-canvas');
 const ctx = canvas.getContext('2d');
 
@@ -7,49 +8,24 @@ petImg.src = 'icon/icon-192.png';
 const width = 204;
 const height = 204;
 
-let petX = 0;
-let direction = -1; // 1 = moving right, -1 = moving left
+let petX = canvas.width - width; // start right side
+let direction = -1; // 1 = right, -1 = left
 
-// Jump parameters
-const jumpDistance = 150;  // horizontal distance of one hop in pixels
-const jumpDuration = 100;  // number of animation frames per hop (higher = slower)
-const baseY = canvas.height / 2 - height / 2;
-const offset = 20;         // vertical offset so start/end aren’t on ground
-const jumpHeight = 60;     // max jump height above baseY + offset
-
-let frame = 0;
+const hopWidth = 200; // hop horizontal length in px (farther jump)
+const hopHeight = 40; // vertical arc height
+const baseY = canvas.height / 2 - height / 2; // vertical base position
 
 petImg.onload = () => {
-  requestAnimationFrame(animate);
+  animate();
 };
 
-function drawPet(x, y) {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-  ctx.save();
-
-  // Flip image horizontally when moving left
-  if (direction === -1) {
-    ctx.translate(x + width / 2, 0);
-    ctx.scale(-1, 1);
-    ctx.translate(-(x + width / 2), 0);
-  }
-
-  ctx.drawImage(petImg, x, y, width, height);
-
-  ctx.restore();
-}
-
 function animate() {
-  // hopPhase from 0 to 1 for each hop cycle
-  let relativeX = (petX % hopWidth + hopWidth) % hopWidth;
+  // Calculate hopPhase (0 to 1)
+  let relativeX = ((petX % hopWidth) + hopWidth) % hopWidth;
   const hopPhase = relativeX / hopWidth;
 
-  // Speed faster at edges, slower at peak:
-  // Use absolute cosine: max at 0 and 1, min at 0.5
+  // Horizontal speed: max at edges (0 and 1), min at apex (0.5)
   const speedMultiplier = Math.abs(Math.cos(Math.PI * hopPhase));
-  // Or alternatively: const speedMultiplier = 1 - Math.sin(Math.PI * hopPhase);
-
   const maxSpeed = 3;
   const effectiveSpeed = maxSpeed * speedMultiplier;
 
@@ -64,19 +40,21 @@ function animate() {
     petX = 0;
   }
 
-  // Vertical arc (still smooth sine for natural hop)
+  // Vertical hop arc (sine wave)
   const petY = baseY - Math.sin(Math.PI * hopPhase) * hopHeight;
 
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.save();
 
   if (direction === -1) {
+    // Flip horizontally around pet center:
     ctx.translate(petX + width / 2, 0);
     ctx.scale(-1, 1);
     ctx.translate(-(petX + width / 2), 0);
   }
 
   ctx.drawImage(petImg, petX, petY, width, height);
+
   ctx.restore();
 
   requestAnimationFrame(animate);
