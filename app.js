@@ -8,14 +8,10 @@ let pet = {
   health: 50,
 };
 
-// Position & animation variables for hopping pig
-let posX = 40;             // start near left edge (same as original rect)
-let direction = 1;         // 1 = right, -1 = left
-const speed = 2;           // horizontal speed in pixels per frame
-let hopOffset = 0;         // vertical offset for hopping
-let hopDirection = 1;      // 1 = up, -1 = down
+// Horizontal position and velocity for hopping
+let petX = 0;
+let petVX = 2; // speed in pixels per frame
 
-// Update UI stats
 function updateStats() {
   document.getElementById('happiness').textContent = pet.happiness;
   document.getElementById('hunger').textContent = pet.hunger;
@@ -23,49 +19,64 @@ function updateStats() {
   document.getElementById('health').textContent = pet.health;
 }
 
-// Animated drawPet with hopping pig
-function drawPet() {
+function drawPet(x) {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  // Update horizontal position
-  posX += direction * speed;
-
-  // Bounce back on edges (keep pig inside canvas)
-  if (posX <= 0 || posX + 80 >= canvas.width) { // 80 is pig body width
-    direction *= -1;
-  }
-
-  // Update hop vertical offset (simple up-down)
-  hopOffset += hopDirection * 0.5;
-  if (hopOffset > 6 || hopOffset < 0) {
-    hopDirection *= -1;
-  }
-
-  // Draw pig body with hopping vertical offset
-  const baseY = 40;  // original y position of pig body
-  const y = baseY - hopOffset;
-
-  // Pink square body
+  // Body
   ctx.fillStyle = '#ff99cc';
-  ctx.fillRect(posX, y, 80, 80);
+  ctx.fillRect(x + 20, 60, 120, 80);
+
+  // Head
+  ctx.fillRect(x + 60, 20, 80, 60);
+
+  // Ears
+  ctx.fillStyle = '#ff66aa';
+  ctx.beginPath();
+  ctx.moveTo(x + 60, 20);
+  ctx.lineTo(x + 50, 10);
+  ctx.lineTo(x + 70, 20);
+  ctx.fill();
+
+  ctx.beginPath();
+  ctx.moveTo(x + 140, 20);
+  ctx.lineTo(x + 150, 10);
+  ctx.lineTo(x + 130, 20);
+  ctx.fill();
 
   // Eyes
   ctx.fillStyle = 'black';
-  ctx.fillRect(posX + 20, y + 30, 10, 10);
-  ctx.fillRect(posX + 50, y + 30, 10, 10);
+  ctx.beginPath();
+  ctx.arc(x + 90, 50, 8, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(x + 130, 50, 8, 0, Math.PI * 2);
+  ctx.fill();
 
   // Nose
   ctx.fillStyle = '#ff66aa';
-  ctx.fillRect(posX + 30, y + 60, 20, 15);
+  ctx.beginPath();
+  ctx.ellipse(x + 110, 80, 20, 10, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Legs
+  ctx.fillStyle = '#ff99cc';
+  ctx.fillRect(x + 30, 140, 20, 30);
+  ctx.fillRect(x + 70, 140, 20, 30);
+  ctx.fillRect(x + 110, 140, 20, 30);
+  ctx.fillRect(x + 150, 140, 20, 30);
 }
 
 // Animation loop
 function animate() {
-  drawPet();
+  petX += petVX;
+
+  if (petX + 180 > canvas.width || petX < 0) petVX = -petVX;
+
+  drawPet(petX);
   requestAnimationFrame(animate);
 }
 
-// Basic interaction functions
+// Interaction functions (with stats update)
 function feedPet() {
   pet.hunger = Math.max(0, pet.hunger - 15);
   pet.happiness = Math.min(100, pet.happiness + 5);
@@ -97,7 +108,7 @@ function healPet() {
   updateStats();
 }
 
-// Background sync registration (generalized tag)
+// Background sync registration
 function registerBackgroundSync(tag) {
   if ('serviceWorker' in navigator && 'SyncManager' in window) {
     navigator.serviceWorker.ready.then(registration => {
@@ -110,8 +121,7 @@ function registerBackgroundSync(tag) {
   }
 }
 
-// Push notification subscription
-
+// Push notification subscription (optional)
 function askPushPermissionAndSubscribe() {
   if (!('Notification' in window) || !('serviceWorker' in navigator) || !('PushManager' in window)) {
     console.log('Push messaging not supported');
@@ -129,7 +139,6 @@ function askPushPermissionAndSubscribe() {
 
 function subscribeUserToPush() {
   navigator.serviceWorker.ready.then(registration => {
-    // TODO: Replace with your own VAPID public key for production
     const vapidPublicKey = 'BOrX-ZnfnDcU7wXcmnI7kVvIVFQeZzxpDvLrFqXdeB-lKQAzP8Hy2LqzWdN-s2Yfr3Kr-Q8OjQ_k3X1KNk1-7LI';
     const convertedVapidKey = urlBase64ToUint8Array(vapidPublicKey);
     registration.pushManager.subscribe({
@@ -137,7 +146,6 @@ function subscribeUserToPush() {
       applicationServerKey: convertedVapidKey
     }).then(subscription => {
       console.log('User subscribed to push:', subscription);
-      // TODO: Send subscription to your server
     }).catch(err => {
       console.log('Failed to subscribe user:', err);
     });
@@ -154,6 +162,6 @@ function urlBase64ToUint8Array(base64String) {
 // Initialize app
 window.onload = () => {
   updateStats();
-  askPushPermissionAndSubscribe();
   animate();
+  askPushPermissionAndSubscribe();
 };
