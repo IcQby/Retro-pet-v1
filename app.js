@@ -47,17 +47,17 @@ function animate() {
     petX += vx;
     petY += vy;
 
-    // Bounce horizontally if pet hits canvas sides (even mid-air)
+    // Bounce horizontally if pig hits canvas sides (even mid-air)
     if (petX <= 0) {
       petX = 0;
       direction = 1;
       facing = 1;
-      vx = Math.abs(vx);  // reverse horizontal velocity to right
+      vx = Math.abs(vx);  // reverse horizontal velocity
     } else if (petX + width >= canvas.width) {
       petX = canvas.width - width;
       direction = -1;
       facing = -1;
-      vx = -Math.abs(vx); // reverse horizontal velocity to left
+      vx = -Math.abs(vx);
     }
 
     // When landing on ground, reset vertical position and jump again
@@ -69,35 +69,33 @@ function animate() {
 
   ctx.save();
 
-if (facing === 1) {
-  // Move the origin to petX + width, petY and flip horizontally
-  ctx.translate(petX + width, petY);
-  ctx.scale(-1, 1);
-  // Draw image at 0,0 because origin shifted
-  ctx.drawImage(petImg, 0, 0, width, height);
+  if (facing === 1) {
+    // Flip image horizontally around top-left corner
+    // So translate to petX + width, petY and scale X by -1
+    ctx.translate(petX + width, petY);
+    ctx.scale(-1, 1);
+    ctx.drawImage(petImg, 0, 0, width, height);
 
-  // Draw bounding box at flipped position too (debug)
-  ctx.strokeStyle = 'red';
-  ctx.lineWidth = 2;
-  ctx.strokeRect(0, 0, width, height);
+    // Draw bounding box exactly where image is drawn
+    ctx.strokeStyle = 'red';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(0, 0, width, height);
 
-} else {
-  // Normal draw and bounding box
-  ctx.drawImage(petImg, petX, petY, width, height);
-  ctx.strokeStyle = 'red';
-  ctx.lineWidth = 2;
-  ctx.strokeRect(petX, petY, width, height);
-}
+  } else {
+    // Normal draw for facing left
+    ctx.drawImage(petImg, petX, petY, width, height);
 
-ctx.restore();
+    // Draw bounding box around image
+    ctx.strokeStyle = 'red';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(petX, petY, width, height);
+  }
 
-
-
-  // Uncomment to debug position values in console:
-  // console.log(`petX: ${petX.toFixed(1)}, petY: ${petY.toFixed(1)}, right edge: ${(petX + width).toFixed(1)}`);
+  ctx.restore();
 
   requestAnimationFrame(animate);
 }
+
 
 petImg.onload = () => {
   animate();
