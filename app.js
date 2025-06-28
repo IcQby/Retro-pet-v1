@@ -1,36 +1,39 @@
 const canvas = document.getElementById('pet-canvas');
 const ctx = canvas.getContext('2d');
-
-// Make sure canvas size is set explicitly
 canvas.width = 600;
 canvas.height = 300;
 
-const petImg = new Image();
-petImg.src = 'icon/icon-192.png';
-
-const width = 100;
-const height = 100;
+const width = 100, height = 100;
 const groundY = canvas.height - height - 20;
 
-let petX = canvas.width; // Start offscreen right
-let petY = groundY;
+let petImgLeft = new Image();
+petImgLeft.src = 'icon/icon-192.png';
+let petImgRight = new Image();
 
-let slidingIn = true;    // Flag for sliding in animation
-let vx = 0;              // Velocity X
-let vy = 0;              // Velocity Y
-const gravity = 0.4;     // Gravity constant
-
-let direction = -1; // -1 = left, 1 = right
-let facing = -1;    // Image facing direction, start facing left
+let petX = canvas.width, petY = groundY;
+let slidingIn = true;
+let vx = 0, vy = 0, gravity = 0.4;
+let direction = -1, facing = -1;
 
 function startJump() {
-  const speed = 6;
-  const angle = Math.PI * 65 / 180;
+  const speed = 6, angle = Math.PI * 65 / 180;
   vx = direction * speed * Math.cos(angle);
   vy = -speed * Math.sin(angle);
 }
-let leftEdgeShifted = false;  // flag to track if shifted after hitting left edge
 
+// Once left image loads, build the right‑facing version
+petImgLeft.onload = () => {
+  const off = document.createElement('canvas');
+  off.width = width; off.height = height;
+  const offctx = off.getContext('2d');
+  offctx.translate(width, 0);
+  offctx.scale(-1, 1);
+  offctx.drawImage(petImgLeft, 0, 0, width, height);
+  petImgRight.src = off.toDataURL();
+  petImgRight.onload = () => {
+    requestAnimationFrame(animate);
+  };
+};
 
 function animate() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -49,47 +52,33 @@ function animate() {
     petX += vx;
     petY += vy;
 
-    // Compute hitbox position
-    const hitX = facing === 1 ? petX - width : petX;
-    const hitRight = hitX + width;
-
-    // Bounce off walls using hitbox edges
-    if (hitX <= 0) {
-      petX = facing === 1 ? width : 0;
-      direction = 1;
-      facing = 1;
-      vx = Math.abs(vx);
-    } else if (hitRight >= canvas.width) {
-      petX = facing === 1 ? canvas.width : canvas.width - width;
-      direction = -1;
-      facing = -1;
-      vx = -Math.abs(vx);
+    // Bounce off walls (petX is always left edge)
+    if (petX < 0) {
+      petX = 0;
+      direction = 1; facing = 1; vx = Math.abs(vx);
+    } else if (petX + width > canvas.width) {
+      petX = canvas.width - width;
+      direction = -1; facing = -1; vx = -Math.abs(vx);
     }
 
+    // Ground bounce
     if (petY >= groundY) {
       petY = groundY;
       startJump();
     }
   }
 
-  // Draw the bounding box for debugging
-  const boxX = facing === 1 ? petX - width : petX;
+  // Debug box
   ctx.strokeStyle = 'red';
   ctx.lineWidth = 2;
-  ctx.strokeRect(boxX, petY, width, height);
+  ctx.strokeRect(petX, petY, width, height);
 
-  // Draw the pet image
-  ctx.save();
-
+  // Draw image
   if (facing === 1) {
-    ctx.translate(petX, petY);
-    ctx.scale(-1, 1);
-    ctx.drawImage(petImg, -width, 0, width, height);
+    ctx.drawImage(petImgRight, petX, petY, width, height);
   } else {
-    ctx.drawImage(petImg, petX, petY, width, height);
+    ctx.drawImage(petImgLeft, petX, petY, width, height);
   }
-
-  ctx.restore();
 
   requestAnimationFrame(animate);
 }
