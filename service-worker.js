@@ -1,4 +1,4 @@
-const CACHE_NAME = 'retro-pet-cache-v2'; // Increment cache version when updating
+const CACHE_NAME = 'retro-pet-cache-v2'; // Update this to invalidate old caches
 const urlsToCache = [
   './',
   './index.html',
@@ -9,41 +9,46 @@ const urlsToCache = [
   './icon/icon-512.png'
 ];
 
-// Install: cache files and activate new service worker immediately
+// Install: cache all required assets and activate immediately
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => cache.addAll(urlsToCache))
   );
-  self.skipWaiting(); // Activate worker immediately after install
+  self.skipWaiting();
 });
 
-// Activate: clean up old caches and take control of clients
+// Activate: delete old caches and take control of clients immediately
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys().then(keys =>
       Promise.all(
-        keys
-          .filter(key => key !== CACHE_NAME)
-          .map(key => caches.delete(key))
+        keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key))
       )
     )
   );
-  self.clients.claim(); // Take control of all clients ASAP
+  self.clients.claim();
 });
 
-// Fetch: serve cached files, update cache with network responses
+// Fetch: respond with cache, then update cache in the background
 self.addEventListener('fetch', event => {
   event.respondWith(
     caches.match(event.request).then(cachedResponse => {
-      if (cachedResponse) {
-        // Return cached response immediately
-        fetch(event.request).then(response => {
-          // Update cache in background
+      const fetchPromise = fetch(event.request).then(networkResponse => {
+        // Only cache valid responses (status 200)
+        if (networkResponse && networkResponse.status === 200) {
           caches.open(CACHE_NAME).then(cache => {
-            cache.put(event.request, response.clone());
+            cache.put(event.request, networkResponse.clone());
           });
-        });
-        return cachedResponse;
-      }
-      return fetch(event.request).then(response => {
-        // Ca
+        }
+        return networkResponse;
+      }).catch(() => {
+        // If fetch fails and no cache, optionally return a fallback
+        if (cachedResponse) return cachedResponse;
+        // You can add fallback logic here for certain URLs (e.g. offline page)
+      });
+
+      // Return cached response immediately if exists, else wait for network
+      return cachedResponse || fetchPromise;
+    })
+  );
+});
