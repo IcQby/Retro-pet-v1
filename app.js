@@ -49,46 +49,54 @@ function animate() {
     petX += vx;
     petY += vy;
 
-    // Left edge bounce and fix
-    if (petX < 0 && !leftEdgeShifted) {
-      petX = 0;
+    // Compute real hitbox based on facing
+    let leftEdge, rightEdge;
+    if (facing === 1) {
+      leftEdge = petX - width;
+      rightEdge = petX;
+    } else {
+      leftEdge = petX;
+      rightEdge = petX + width;
+    }
+
+    // Bounce off left edge
+    if (leftEdge < 0) {
+      petX = facing === 1 ? width : 0;
       direction = 1;
       facing = 1;
       vx = Math.abs(vx);
-      leftEdgeShifted = true;
     }
 
-    // Reset flag when clearly away from edge
-    if (leftEdgeShifted && petX > 5) {
-      leftEdgeShifted = false;
-    }
-
-    // Right edge bounce
-    if (petX > canvas.width - width) {
-      petX = canvas.width - width;
+    // Bounce off right edge
+    if (rightEdge > canvas.width) {
+      petX = facing === 1 ? canvas.width : canvas.width - width;
       direction = -1;
       facing = -1;
       vx = -Math.abs(vx);
     }
 
-    // Ground bounce
+    // Bounce on ground
     if (petY >= groundY) {
       petY = groundY;
       startJump();
     }
   }
 
-  // Debug bounding box
+  // Debug: bounding box
   ctx.strokeStyle = 'red';
   ctx.lineWidth = 2;
-  ctx.strokeRect(petX, petY, width, height);
+  if (facing === 1) {
+    ctx.strokeRect(petX - width, petY, width, height);
+  } else {
+    ctx.strokeRect(petX, petY, width, height);
+  }
 
   ctx.save();
 
   if (facing === 1) {
-    ctx.translate(petX + width / 2, petY + height / 2);
+    ctx.translate(petX, petY);
     ctx.scale(-1, 1);
-    ctx.drawImage(petImg, -width / 2, -height / 2, width, height);
+    ctx.drawImage(petImg, -width, 0, width, height);
   } else {
     ctx.drawImage(petImg, petX, petY, width, height);
   }
@@ -97,6 +105,7 @@ function animate() {
 
   requestAnimationFrame(animate);
 }
+
 
 petImg.onload = () => {
   animate();
