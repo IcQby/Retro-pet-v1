@@ -31,6 +31,7 @@ function startJump() {
 }
 
 function animate() {
+function animate() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   if (slidingIn) {
@@ -47,20 +48,18 @@ function animate() {
     petX += vx;
     petY += vy;
 
-    // Bounce horizontally off sides immediately, clamp petX inside canvas
     if (petX < 0) {
       petX = 0;
+      vx = Math.abs(vx);
       direction = 1;
       facing = 1;
-      vx = Math.abs(vx);
-    } else if (petX + width >= canvas.width) {
-      petX = canvas.width - width;  // Clamp right edge exactly
+    } else if (petX + width > canvas.width) {
+      petX = canvas.width - width;
+      vx = -Math.abs(vx);
       direction = -1;
       facing = -1;
-      vx = -Math.abs(vx);
     }
 
-    // Bounce vertically (jump again) on ground contact
     if (petY >= groundY) {
       petY = groundY;
       startJump();
@@ -80,6 +79,7 @@ function animate() {
 
   requestAnimationFrame(animate);
 }
+
 
 petImg.onload = () => {
   animate();
