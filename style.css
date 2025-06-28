@@ -4,7 +4,7 @@ body {
   font-family: monospace, monospace;
   text-align: center;
   margin: 0;
-  padding: 1rem;
+  padding: 0; /* Removed padding to eliminate left gap */
 }
 
 button {
@@ -23,6 +23,7 @@ button:hover {
 }
 
 #pet-canvas {
+  display: block;           /* Make canvas a block element */
+  margin: 0 auto 1rem auto; /* Center horizontally, margin bottom 1rem */
   image-rendering: pixelated;
-  margin-bottom: 1rem;
 }
