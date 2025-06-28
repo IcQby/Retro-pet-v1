@@ -16,70 +16,66 @@ let vx = 0;
 let vy = 0;
 let gravity = 0.4;
 let direction = -1; // -1 = left, 1 = right
+let jumping = false;
 
 function startJump() {
-  const speed = 6;
+  const jumpDuration = 1.7 * 60; // 1.7 seconds at ~60fps
+  const jumpSpeed = 6;
   const angle = Math.PI * 65 / 180;
-  vx = direction * speed * Math.cos(angle);
-  vy = -speed * Math.sin(angle);
+  vx = direction * jumpSpeed * Math.cos(angle);
+  vy = -jumpSpeed * Math.sin(angle);
+  jumping = true;
 }
-
-petImg.onload = () => {
-  requestAnimationFrame(animate);
-};
 
 function animate() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   if (slidingIn) {
-    // Slide left at constant speed
     petX -= 2;
     if (petX <= canvas.width - width - 10) {
       petX = canvas.width - width - 10;
       slidingIn = false;
-      direction = -1; // keep moving left
+      direction = -1; // move left
       startJump();
     }
   } else {
-    // Hopping physics
-    vy += gravity;
-    petX += vx;
-    petY += vy;
+    if (jumping) {
+      vy += gravity;
+      petX += vx;
+      petY += vy;
 
-    if (petY >= groundY) {
-      petY = groundY;
+      if (petY >= groundY) {
+        petY = groundY;
 
-      // Bounce at edges or continue hopping
-      if (petX <= 0) {
-        petX = 0;
-        direction = 1;
-        startJump();
-      } else if (petX + width >= canvas.width) {
-        petX = canvas.width - width;
-        direction = -1;
-        startJump();
-      } else {
-        startJump(); // keep hopping same direction
+        // Hit left or right edge → bounce direction
+        if (petX <= 0) {
+          petX = 0;
+          direction = 1;
+        } else if (petX + width >= canvas.width) {
+          petX = canvas.width - width;
+          direction = -1;
+        }
+
+        startJump(); // next hop in current direction
       }
     }
   }
 
   ctx.save();
 
-  // Flip the pet horizontally if facing left (direction = -1) or sliding in (also left)
-  if (direction === -1 || slidingIn) {
-    // Translate to center of image horizontally, flip, translate back
+  // Flip if moving left
+  if (direction === -1) {
     ctx.translate(petX + width / 2, 0);
     ctx.scale(-1, 1);
     ctx.translate(-(petX + width / 2), 0);
   }
 
   ctx.drawImage(petImg, petX, petY, width, height);
-
   ctx.restore();
 
   requestAnimationFrame(animate);
 }
+
 
 
 // Stats and interactions below (kept unchanged)
