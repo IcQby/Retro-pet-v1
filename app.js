@@ -53,8 +53,8 @@ function animate() {
       direction = 1;
       facing = 1;
       vx = Math.abs(vx);
-    } else if (petX + width > canvas.width) {
-      petX = canvas.width - width;
+    } else if (petX + width >= canvas.width) {
+      petX = canvas.width - width;  // Clamp right edge exactly
       direction = -1;
       facing = -1;
       vx = -Math.abs(vx);
@@ -80,7 +80,6 @@ function animate() {
 
   requestAnimationFrame(animate);
 }
-
 
 petImg.onload = () => {
   animate();
