@@ -49,26 +49,17 @@ function animate() {
     petX += vx;
     petY += vy;
 
-    // Compute real hitbox based on facing
-    let leftEdge, rightEdge;
-    if (facing === 1) {
-      leftEdge = petX - width;
-      rightEdge = petX;
-    } else {
-      leftEdge = petX;
-      rightEdge = petX + width;
-    }
+    // Calculate true hitbox based on facing direction
+    let hitLeft = facing === 1 ? petX - width : petX;
+    let hitRight = facing === 1 ? petX : petX + width;
 
-    // Bounce off left edge
-    if (leftEdge < 0) {
+    // Bounce off canvas edges
+    if (hitLeft <= 0) {
       petX = facing === 1 ? width : 0;
       direction = 1;
       facing = 1;
       vx = Math.abs(vx);
-    }
-
-    // Bounce off right edge
-    if (rightEdge > canvas.width) {
+    } else if (hitRight >= canvas.width) {
       petX = facing === 1 ? canvas.width : canvas.width - width;
       direction = -1;
       facing = -1;
@@ -82,13 +73,13 @@ function animate() {
     }
   }
 
-  // Debug: bounding box
+  // Debug box to show real position
   ctx.strokeStyle = 'red';
   ctx.lineWidth = 2;
   if (facing === 1) {
-    ctx.strokeRect(petX - width, petY, width, height);
+    ctx.strokeRect(petX - width, petY, width, height); // flipped, draw left of petX
   } else {
-    ctx.strokeRect(petX, petY, width, height);
+    ctx.strokeRect(petX, petY, width, height); // normal
   }
 
   ctx.save();
@@ -105,7 +96,6 @@ function animate() {
 
   requestAnimationFrame(animate);
 }
-
 
 petImg.onload = () => {
   animate();
