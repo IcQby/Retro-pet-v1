@@ -21,15 +21,37 @@ function updateStats() {
   document.getElementById('cleanliness').textContent = pet.cleanliness;
   document.getElementById('health').textContent = pet.health;
 }
+let petX = 0;
+let petVX = 2;
+const hopWidth = 100;  // horizontal length of one hop arc
+const hopHeight = 40;  // max height of hop
 
-function drawPet(x) {
+function drawPet(x, y) {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   const width = 204;
   const height = 204;
-  const y = canvas.height / 2 - height / 2; // vertically center
-
   ctx.drawImage(petImg, x, y, width, height);
 }
+
+function animate() {
+  petX += petVX;
+
+  // Bounce horizontally at edges
+  if (petX + 204 > canvas.width || petX < 0) petVX = -petVX;
+
+  // Calculate vertical hop using sine wave mapped to hopWidth
+  // petX % hopWidth gives horizontal position inside current hop cycle
+  const hopPhase = (petX % hopWidth) / hopWidth; // from 0 to 1
+
+  // Vertical position forms an arc: y = baseY - sin(pi * hopPhase) * hopHeight
+  // sin(pi * hopPhase) goes 0 → 1 → 0 for a smooth arc
+  const baseY = canvas.height / 2 - 204 / 2;
+  const petY = baseY - Math.sin(Math.PI * hopPhase) * hopHeight;
+
+  drawPet(petX, petY);
+  requestAnimationFrame(animate);
+}
+
 
 
 
