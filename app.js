@@ -18,16 +18,17 @@ window.addEventListener('resize', () => {
 });
 
 // Constants for pet size
-const width = 102, height = 102;  // Actual image size
-const groundY = canvas.height - (204/2);  // 1/4th from the bottom
+const width = 102, height = 102;  // Actual image size (scaled down)
+const groundY = canvas.height - height;  // Set ground to the bottom based on 102px image height
 
 // Pet image
 let petImgLeft = new Image();
 petImgLeft.src = 'icon/icon-192.png';
 
-let petX = canvas.width - width - 10, petY = groundY; // Inside canvas
+let petX = canvas.width - width - 10, petY = groundY; // inside canvas
 let vx = 0, vy = 0, gravity = 0.4;
 let direction = -1, facing = -1;
+
 
 // Function to start jumping
 function startJump() {
