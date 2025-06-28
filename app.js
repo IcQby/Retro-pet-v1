@@ -19,7 +19,7 @@ window.addEventListener('resize', () => {
 
 // Constants for pet size
 const width = 102, height = 102;  // Actual image size
-const groundY = canvas.height / 4;
+const groundY = canvas.height / 4;  // Set to 1/4 of the canvas height
 
 // Pet image
 let petImgLeft = new Image();
