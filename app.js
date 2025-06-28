@@ -31,6 +31,7 @@ function startJump() {
 }
 let leftEdgeShifted = false;  // flag to track if shifted after hitting left edge
 
+
 function animate() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -48,31 +49,29 @@ function animate() {
     petX += vx;
     petY += vy;
 
-    // When hitting left edge, shift petX temporarily by 1 width right
+    // Left edge bounce and fix
     if (petX < 0 && !leftEdgeShifted) {
-      petX += width;     // shift right by 1 image width
-      leftEdgeShifted = true;
-    }
-
-    // After shifting, if petX is now beyond 0, revert it back next frame
-    if (leftEdgeShifted && petX >= 0) {
-      petX -= width;     // revert to original position
-      leftEdgeShifted = false;
-    }
-
-    // Bounce and clamp horizontally (adjusted for shifting)
-    if (petX < 0) {
       petX = 0;
       direction = 1;
       facing = 1;
       vx = Math.abs(vx);
-    } else if (petX > canvas.width - width) {
+      leftEdgeShifted = true;
+    }
+
+    // Reset flag when clearly away from edge
+    if (leftEdgeShifted && petX > 5) {
+      leftEdgeShifted = false;
+    }
+
+    // Right edge bounce
+    if (petX > canvas.width - width) {
       petX = canvas.width - width;
       direction = -1;
       facing = -1;
       vx = -Math.abs(vx);
     }
 
+    // Ground bounce
     if (petY >= groundY) {
       petY = groundY;
       startJump();
