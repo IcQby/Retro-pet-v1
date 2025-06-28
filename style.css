@@ -1,5 +1,5 @@
 body {
-  background-color: #fff;
+  background-color: #ADD8E6; /* Light blue sky */
   color: #0f0;
   font-family: monospace, monospace;
   text-align: center;
@@ -23,9 +23,8 @@ button:hover {
 }
 
 #pet-canvas {
-  display: block;           /* Make canvas a block element */
-  margin: 0 auto 1rem auto; /* Center horizontally, margin bottom 1rem */
+  display: block;
+  margin: 0 auto 1rem auto;
   image-rendering: pixelated;
-  background-color: transparent;
-  
+  /* Remove the background-color line here */
 }
