@@ -11,12 +11,23 @@ let pet = {
   health: 50,
 };
 
-// Horizontal position and velocity for hopping
-let petX = 0;
-let petVX = 2; // speed in pixels per frame
+// Hop parameters
+const hopWidth = 100;  // horizontal length of one hop arc (pixels)
+const hopHeight = 40;  // max height of hop (pixels)
+const hopDuration = 1700; // ms per hop (1.7 seconds)
 
-const hopWidth = 100;  // horizontal length of one hop arc
-const hopHeight = 40;  // max height of hop
+// Calculated parameters
+const fps = 60; // approx
+const framesPerHop = (hopDuration / 1000) * fps;
+const baseSpeed = hopWidth / framesPerHop; // base horizontal speed per frame if linear
+
+// Animation state
+let petX = 0;
+let petDirection = 1; // 1: moving right, -1: moving left
+let petFlip = false;  // whether image is flipped horizontally
+
+// Time tracking for smooth animation
+let lastTime = null;
 
 function updateStats() {
   document.getElementById('happiness').textContent = pet.happiness;
@@ -29,19 +40,52 @@ function drawPet(x, y) {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   const width = 204;
   const height = 204;
+  
+  ctx.save();
+
+  if (petFlip) {
+    // Flip horizontally around center of pet image
+    ctx.translate(x + width / 2, 0);
+    ctx.scale(-1, 1);
+    ctx.translate(-x - width / 2, 0);
+  }
+
   ctx.drawImage(petImg, x, y, width, height);
+  ctx.restore();
 }
 
-function animate() {
-  petX += petVX;
+function animate(timestamp) {
+  if (!lastTime) lastTime = timestamp;
+  const deltaTime = timestamp - lastTime; // ms elapsed since last frame
+  lastTime = timestamp;
 
-  // Bounce horizontally at edges
-  if (petX + 204 > canvas.width || petX < 0) petVX = -petVX;
+  // Calculate hop phase [0,1] in current hop cycle based on petX mod hopWidth
+  let hopPhase = (petX % hopWidth) / hopWidth;
 
-  // Calculate vertical hop using sine wave mapped to hopWidth
-  const hopPhase = (petX % hopWidth) / hopWidth; // from 0 to 1
+  // We want horizontal speed to slow near the peak of the arc:
+  // Use derivative of sine arc shape to modulate speed, slowing near sin(pi * hopPhase) max at 0.5
+  // speed multiplier = cos(pi * hopPhase), which is 1 at 0, 0 at 0.5,  -1 at 1 (we take abs)
+  // We'll use absolute cosine to keep speed positive and symmetric
 
-  // Vertical position forms an arc: smooth hop effect
+  const speedMultiplier = Math.abs(Math.cos(Math.PI * hopPhase));
+  const speedThisFrame = baseSpeed * speedMultiplier;
+
+  // Update petX position
+  petX += petDirection * speedThisFrame * (deltaTime / (1000 / fps));
+
+  // Bounce at edges and flip image horizontally
+  if (petX + 204 > canvas.width) {
+    petX = canvas.width - 204;
+    petDirection = -1;
+    petFlip = true; // flip horizontally facing left
+  } else if (petX < 0) {
+    petX = 0;
+    petDirection = 1;
+    petFlip = false; // flip back facing right
+  }
+
+  // Calculate vertical position for smooth hop arc
+  hopPhase = (petX % hopWidth) / hopWidth;
   const baseY = canvas.height / 2 - 204 / 2;
   const petY = baseY - Math.sin(Math.PI * hopPhase) * hopHeight;
 
@@ -49,7 +93,7 @@ function animate() {
   requestAnimationFrame(animate);
 }
 
-// Interaction functions (with stats update)
+// Interaction functions with stats update
 function feedPet() {
   pet.hunger = Math.max(0, pet.hunger - 15);
   pet.happiness = Math.min(100, pet.happiness + 5);
@@ -136,11 +180,10 @@ function urlBase64ToUint8Array(base64String) {
 window.onload = () => {
   updateStats();
 
-  // Start animation only after image loaded
   if (petImg.complete) {
-    animate();
+    requestAnimationFrame(animate);
   } else {
-    petImg.onload = animate;
+    petImg.onload = () => requestAnimationFrame(animate);
   }
 
   askPushPermissionAndSubscribe();
