@@ -1,3 +1,4 @@
+
 const canvas = document.getElementById('pet-canvas');
 const ctx = canvas.getContext('2d');
 
@@ -11,59 +12,79 @@ const groundY = canvas.height - height - 20;
 let petX = canvas.width; // Start offscreen right
 let petY = groundY;
 
+let slidingIn = true;
+
+let vx = 0;
+let vy = 0;
+let gravity = 0.4;
+
 let direction = -1; // movement direction: -1 = left, 1 = right
-let facing = -1;    // which way image is facing, start facing left (original image orientation)
+let facing = -1;    // image facing direction: -1 = left (original image), 1 = right
 
-// Inside animate():
+function startJump() {
+  const speed = 6;
+  const angle = Math.PI * 65 / 180;
+  vx = direction * speed * Math.cos(angle);
+  vy = -speed * Math.sin(angle);
+}
 
-if (slidingIn) {
-  petX -= 2;
-  if (petX <= canvas.width - width - 10) {
-    petX = canvas.width - width - 10;
-    slidingIn = false;
-    direction = -1; // keep moving left
-    facing = -1;    // face left as well
-    startJump();
-  }
-} else {
-  vy += gravity;
-  petX += vx;
-  petY += vy;
+petImg.onload = () => {
+  requestAnimationFrame(animate);
+};
 
-  if (petY >= groundY) {
-    petY = groundY;
+function animate() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    if (petX <= 0) {
-      petX = 0;
-      direction = 1;
-      facing = 1;   // now face right
+  if (slidingIn) {
+    petX -= 2;
+    if (petX <= canvas.width - width - 10) {
+      petX = canvas.width - width - 10;
+      slidingIn = false;
+      direction = -1; // keep moving left
+      facing = -1;    // face left as well
       startJump();
-    } else if (petX + width >= canvas.width) {
-      petX = canvas.width - width;
-      direction = -1;
-      facing = -1;  // face left
-      startJump();
-    } else {
-      startJump();  // keep hopping in same direction
+    }
+  } else {
+    vy += gravity;
+    petX += vx;
+    petY += vy;
+
+    if (petY >= groundY) {
+      petY = groundY;
+
+      if (petX <= 0) {
+        petX = 0;
+        direction = 1;
+        facing = 1;   // face right
+        startJump();
+      } else if (petX + width >= canvas.width) {
+        petX = canvas.width - width;
+        direction = -1;
+        facing = -1;  // face left
+        startJump();
+      } else {
+        startJump();  // keep hopping in same direction
+      }
     }
   }
-}
 
-ctx.save();
+  ctx.save();
 
-// Flip the pet if the facing direction is different from original (which is left = -1)
-if (facing === 1) { // image faces right, flip horizontally
-  ctx.translate(petX + width / 2, 0);
-  ctx.scale(-1, 1);
-  ctx.translate(-(petX + width / 2), 0);
-}
+  // Flip if facing right (original image faces left)
+  if (facing === 1) {
+    ctx.translate(petX + width / 2, 0);
+    ctx.scale(-1, 1);
+    ctx.translate(-(petX + width / 2), 0);
+  }
 
-ctx.drawImage(petImg, petX, petY, width, height);
-ctx.restore();
+  ctx.drawImage(petImg, petX, petY, width, height);
+
+  ctx.restore();
 
   requestAnimationFrame(animate);
 }
 
+// The rest of your code (stats, interactions, background sync, push) stays the same...
 
 
 // Stats and interactions below (kept unchanged)
