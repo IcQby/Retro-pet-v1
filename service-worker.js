@@ -1,4 +1,4 @@
-const CACHE_NAME = 'retro-pet-cache-v1';
+const CACHE_NAME = 'retro-pet-cache-v2'; // Increment cache version when updating
 const urlsToCache = [
   './',
   './index.html',
@@ -9,52 +9,41 @@ const urlsToCache = [
   './icon/icon-512.png'
 ];
 
-// Install - cache files
+// Install: cache files and activate new service worker immediately
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => cache.addAll(urlsToCache))
   );
-  self.skipWaiting();
+  self.skipWaiting(); // Activate worker immediately after install
 });
 
-// Activate - cleanup old caches
+// Activate: clean up old caches and take control of clients
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys().then(keys =>
       Promise.all(
-        keys.filter(key => key !== CACHE_NAME)
-            .map(key => caches.delete(key))
+        keys
+          .filter(key => key !== CACHE_NAME)
+          .map(key => caches.delete(key))
       )
     )
   );
-  self.clients.claim();
+  self.clients.claim(); // Take control of all clients ASAP
 });
 
-// Fetch - serve cached content when offline
+// Fetch: serve cached files, update cache with network responses
 self.addEventListener('fetch', event => {
   event.respondWith(
-    fetch(event.request)
-      .then(response => {
-        // Clone response and cache it
-        const responseClone = response.clone();
-        caches.open(CACHE_NAME).then(cache => {
-          cache.put(event.request, responseClone);
+    caches.match(event.request).then(cachedResponse => {
+      if (cachedResponse) {
+        // Return cached response immediately
+        fetch(event.request).then(response => {
+          // Update cache in background
+          caches.open(CACHE_NAME).then(cache => {
+            cache.put(event.request, response.clone());
+          });
         });
-        return response;
-      })
-      .catch(() => caches.match(event.request))
-  );
-});
-
-// Background sync (example - just logs sync events)
-self.addEventListener('sync', event => {
-  if (event.tag === 'sync-retro-pet-data') {
-    event.waitUntil(syncRetroPetData());
-  }
-});
-
-async function syncRetroPetData() {
-  // Implement your data sync logic here
-  console.log('Background sync triggered for Retro Pet data!');
-  // Example: send pending data to server
-}
+        return cachedResponse;
+      }
+      return fetch(event.request).then(response => {
+        // Ca
