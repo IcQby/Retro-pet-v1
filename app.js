@@ -6,58 +6,66 @@ petImg.src = 'icon/icon-192.png';
 
 const width = 100;
 const height = 100;
-const groundY = canvas.height - height - 20; // ~180px for 300 height
+const groundY = canvas.height - height - 20;
 
-let petX = canvas.width; // Start just off-screen right
+let petX = canvas.width; // Start offscreen right
 let petY = groundY;
 
 let slidingIn = true;
-
 let vx = 0;
 let vy = 0;
 let gravity = 0.4;
 let direction = -1; // -1 = left, 1 = right
 
-const jumpDuration = 1700; // milliseconds
+function startJump() {
+  const speed = 6;
+  const angle = Math.PI * 65 / 180;
+  vx = direction * speed * Math.cos(angle);
+  vy = -speed * Math.sin(angle);
+}
 
 petImg.onload = () => {
   requestAnimationFrame(animate);
 };
-
-function startJump() {
-  // Simulate ~65° angle jump by setting vx/vy accordingly
-  const speed = 6;
-  const angle = Math.PI * 65 / 180; // ≈65°
-  vx = direction * speed * Math.cos(angle);
-  vy = -speed * Math.sin(angle);
-}
 
 function animate() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   if (slidingIn) {
     petX -= 2;
-    if (petX <= canvas.width - width) {
-      petX = canvas.width - width;
+    if (petX <= canvas.width - width - 10) {
+      petX = canvas.width - width - 10;
       slidingIn = false;
+      direction = -1; // keep moving left
       startJump();
     }
   } else {
-    // Apply gravity
+    // Hopping
     vy += gravity;
     petX += vx;
     petY += vy;
 
-    // Check for landing
     if (petY >= groundY) {
       petY = groundY;
-      direction *= -1;
-      startJump(); // new jump
+
+      // Flip at canvas edges
+      if (petX <= 0) {
+        petX = 0;
+        direction = 1;
+        startJump();
+      } else if (petX + width >= canvas.width) {
+        petX = canvas.width - width;
+        direction = -1;
+        startJump();
+      } else {
+        startJump(); // continue hopping in same direction
+      }
     }
   }
 
   ctx.save();
-  // Flip horizontally if moving left
+
+  // Flip if moving left
   if (direction === -1) {
     ctx.translate(petX + width / 2, 0);
     ctx.scale(-1, 1);
@@ -69,7 +77,6 @@ function animate() {
 
   requestAnimationFrame(animate);
 }
-
 
 // Stats and interactions below (kept unchanged)
 
