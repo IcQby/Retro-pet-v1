@@ -8,6 +8,13 @@ let pet = {
   health: 50,
 };
 
+// Position & animation variables for hopping pig
+let posX = 40;             // start near left edge (same as original rect)
+let direction = 1;         // 1 = right, -1 = left
+const speed = 2;           // horizontal speed in pixels per frame
+let hopOffset = 0;         // vertical offset for hopping
+let hopDirection = 1;      // 1 = up, -1 = down
+
 // Update UI stats
 function updateStats() {
   document.getElementById('happiness').textContent = pet.happiness;
@@ -16,19 +23,46 @@ function updateStats() {
   document.getElementById('health').textContent = pet.health;
 }
 
-// Draw simple pixel pet (pig face)
+// Animated drawPet with hopping pig
 function drawPet() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // Update horizontal position
+  posX += direction * speed;
+
+  // Bounce back on edges (keep pig inside canvas)
+  if (posX <= 0 || posX + 80 >= canvas.width) { // 80 is pig body width
+    direction *= -1;
+  }
+
+  // Update hop vertical offset (simple up-down)
+  hopOffset += hopDirection * 0.5;
+  if (hopOffset > 6 || hopOffset < 0) {
+    hopDirection *= -1;
+  }
+
+  // Draw pig body with hopping vertical offset
+  const baseY = 40;  // original y position of pig body
+  const y = baseY - hopOffset;
+
   // Pink square body
   ctx.fillStyle = '#ff99cc';
-  ctx.fillRect(40, 40, 80, 80);
+  ctx.fillRect(posX, y, 80, 80);
+
   // Eyes
   ctx.fillStyle = 'black';
-  ctx.fillRect(60, 70, 10, 10);
-  ctx.fillRect(90, 70, 10, 10);
+  ctx.fillRect(posX + 20, y + 30, 10, 10);
+  ctx.fillRect(posX + 50, y + 30, 10, 10);
+
   // Nose
   ctx.fillStyle = '#ff66aa';
-  ctx.fillRect(70, 100, 20, 15);
+  ctx.fillRect(posX + 30, y + 60, 20, 15);
+}
+
+// Animation loop
+function animate() {
+  drawPet();
+  requestAnimationFrame(animate);
 }
 
 // Basic interaction functions
@@ -119,7 +153,7 @@ function urlBase64ToUint8Array(base64String) {
 
 // Initialize app
 window.onload = () => {
-  drawPet();
   updateStats();
   askPushPermissionAndSubscribe();
+  animate();
 };
