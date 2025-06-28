@@ -11,9 +11,9 @@ const baseY = canvas.height / 2 - height / 2; // vertical baseline for hopping (
 const hopHeight = 40; // max vertical hop height
 
 
-let direction = -1; // start moving left
-let hopProgress = 0; // 0..1 for hop arc progress
-const maxHopSpeed = 0.008; // controls hop speed
+let facing = -1;       // horizontal direction: -1 for left, 1 for right
+let hopProgress = 0;   // always moves 0 → 1 → 0
+let hoppingForward = true; // direction of hop arc only
 
 let petX = canvas.width; // start offscreen right
 
@@ -26,22 +26,33 @@ let facing = -1; // direction of horizontal movement (left = -1, right = 1)
 function animate() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  if (petX > canvas.width - width) {
-    // Entering: move left without hopping
+  const isEntering = petX > canvas.width - width;
+
+  if (isEntering) {
+    // Slide in from right without hopping
     petX -= 2;
   } else {
-    // Hopping: progress hop arc
-    hopProgress += maxHopSpeed;
-    if (hopProgress > 1) {
-      hopProgress = 0;
+    // Update hopProgress (arc: 0 -> 1 -> 0 loop)
+    if (hoppingForward) {
+      hopProgress += maxHopSpeed;
+      if (hopProgress >= 1) {
+        hopProgress = 1;
+        hoppingForward = false;
+      }
+    } else {
+      hopProgress -= maxHopSpeed;
+      if (hopProgress <= 0) {
+        hopProgress = 0;
+        hoppingForward = true;
+      }
     }
 
-    // Calculate speed with cosine curve for hop
+    // Move horizontally with cosine-based speed
     const speedMultiplier = Math.abs(Math.cos(Math.PI * hopProgress));
     const hopSpeed = 3 * speedMultiplier;
-    petX += hopSpeed * facing;
+    petX += facing * hopSpeed;
 
-    // Bounce off edges
+    // Reverse at screen edges
     if (petX <= 0) {
       petX = 0;
       facing = 1;
@@ -51,15 +62,15 @@ function animate() {
     }
   }
 
-  // Calculate vertical arc position
-  const petY = petX > canvas.width - width
+  // Calculate vertical hop arc
+  const petY = isEntering
     ? baseY
     : baseY - Math.sin(Math.PI * hopProgress) * hopHeight;
 
   ctx.save();
 
-  // Flip image when facing left and already inside screen
-  if (facing === -1 && petX <= canvas.width - width) {
+  // Flip image if moving left and fully inside
+  if (!isEntering && facing === -1) {
     ctx.translate(petX + width / 2, 0);
     ctx.scale(-1, 1);
     ctx.translate(-(petX + width / 2), 0);
@@ -70,7 +81,6 @@ function animate() {
 
   requestAnimationFrame(animate);
 }
-
 
 
 // Stats and interactions below (kept unchanged)
