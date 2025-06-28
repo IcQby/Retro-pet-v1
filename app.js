@@ -29,17 +29,13 @@ function startJump() {
   vx = direction * speed * Math.cos(angle);
   vy = -speed * Math.sin(angle);
 }
-
 function animate() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  const leftBound = 0;
-  const rightBound = canvas.width;
-
   if (slidingIn) {
     petX -= 2;
-    if (petX <= rightBound - width - 10) {
-      petX = rightBound - width - 10;
+    if (petX <= canvas.width - width - 10) {
+      petX = canvas.width - width - 10;
       slidingIn = false;
       direction = -1;
       facing = -1;
@@ -50,29 +46,16 @@ function animate() {
     petX += vx;
     petY += vy;
 
-    // Calculate edges based on facing
-    let petLeftEdge, petRightEdge;
-    if (facing === -1) {
-      petLeftEdge = petX;
-      petRightEdge = petX + width;
-    } else {
-      petLeftEdge = petX - width;
-      petRightEdge = petX;
-    }
+    // Clamp petX inside bounds explicitly
+    if (petX < 0) petX = 0;
+    if (petX > canvas.width - width) petX = canvas.width - width;
 
-    // Bounce on hitting boundaries
-    if (petLeftEdge <= leftBound) {
-      // Clamp
-      if (facing === 1) petX = leftBound + width;
-      else petX = leftBound;
-
+    // Bounce horizontally if pig hits canvas sides (even mid-air)
+    if (petX <= 0) {
       direction = 1;
       facing = 1;
       vx = Math.abs(vx);
-    } else if (petRightEdge >= rightBound) {
-      if (facing === 1) petX = rightBound;
-      else petX = rightBound - width;
-
+    } else if (petX >= canvas.width - width) {
       direction = -1;
       facing = -1;
       vx = -Math.abs(vx);
@@ -84,24 +67,18 @@ function animate() {
     }
   }
 
-  // Draw debug boundary lines
+  // Draw the bounding box in red to debug
   ctx.strokeStyle = 'red';
   ctx.lineWidth = 2;
-  ctx.beginPath();
-  ctx.moveTo(leftBound, 0);
-  ctx.lineTo(leftBound, canvas.height);
-  ctx.stroke();
-  ctx.beginPath();
-  ctx.moveTo(rightBound, 0);
-  ctx.lineTo(rightBound, canvas.height);
-  ctx.stroke();
+  ctx.strokeRect(petX, petY, width, height);
 
   ctx.save();
 
   if (facing === 1) {
-    ctx.translate(petX + width, petY);
+    // Flip horizontally around image center:
+    ctx.translate(petX + width / 2, petY + height / 2);
     ctx.scale(-1, 1);
-    ctx.drawImage(petImg, 0, 0, width, height);
+    ctx.drawImage(petImg, -width / 2, -height / 2, width, height);
   } else {
     ctx.drawImage(petImg, petX, petY, width, height);
   }
@@ -110,6 +87,7 @@ function animate() {
 
   requestAnimationFrame(animate);
 }
+
 
 petImg.onload = () => {
   animate();
