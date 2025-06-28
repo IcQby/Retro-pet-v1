@@ -24,8 +24,13 @@ function updateStats() {
 
 function drawPet(x) {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  ctx.drawImage(petImg, x, 20, 192, 192);
+  const width = 204;
+  const height = 204;
+  const y = canvas.height / 2 - height / 2; // vertically center
+
+  ctx.drawImage(petImg, x, y, width, height);
 }
+
 
 
 function animate() {
