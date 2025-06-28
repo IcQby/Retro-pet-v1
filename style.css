@@ -1,32 +1,28 @@
 body {
-  font-family: monospace;
-  background: #111;
+  background-color: #000;
   color: #0f0;
+  font-family: monospace, monospace;
   text-align: center;
   margin: 0;
-  padding: 1em;
+  padding: 1rem;
 }
-#app {
-  max-width: 320px;
-  margin: auto;
-  background: #222;
-  padding: 1em;
-  border: 3px solid #0f0;
-  border-radius: 10px;
-}
-canvas {
-  background: #000;
-  image-rendering: pixelated;
-  margin-bottom: 1em;
-}
+
 button {
-  margin: 0.2em;
-  padding: 0.5em;
-  background: #0f0;
-  color: #000;
-  border: none;
+  font-size: 1.2rem;
+  margin: 0.3rem;
+  padding: 0.5rem 1rem;
+  background-color: #003300;
+  color: #0f0;
+  border: 1px solid #0f0;
   cursor: pointer;
+  border-radius: 5px;
 }
-#stats p {
-  margin: 0.2em;
+
+button:hover {
+  background-color: #006600;
+}
+
+#pet-canvas {
+  image-rendering: pixelated;
+  margin-bottom: 1rem;
 }
