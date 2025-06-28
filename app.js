@@ -1,18 +1,16 @@
+
 const canvas = document.getElementById('pet-canvas');
 const ctx = canvas.getContext('2d');
-canvas.width = 500;  // your changed width
+canvas.width = 600;
 canvas.height = 300;
 
 const width = 100, height = 100;
 const groundY = canvas.height - height - 20;
 
 let petImgLeft = new Image();
-let petImgRight = new Image();
-
 petImgLeft.src = 'icon/icon-192.png';
-petImgRight.src = 'icon/icon-192.png';  // Replace with a right-facing image if you have
 
-let petX = canvas.width - width - 10, petY = groundY;
+let petX = canvas.width - width - 10, petY = groundY; // inside canvas
 let vx = 0, vy = 0, gravity = 0.4;
 let direction = -1, facing = -1;
 
@@ -27,52 +25,56 @@ startJump();
 function animate() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+  // Gravity and movement
   vy += gravity;
   petX += vx;
   petY += vy;
 
+  // Bounce off left wall
   if (petX <= 0) {
     petX = 0;
     direction = 1;
     facing = 1;
     vx = Math.abs(vx);
-  } else if (petX + width >= canvas.width) {
+  }
+  // Bounce off right wall
+  else if (petX + width >= canvas.width) {
     petX = canvas.width - width;
     direction = -1;
     facing = -1;
     vx = -Math.abs(vx);
   }
 
+  // Bounce off ground
   if (petY >= groundY) {
     petY = groundY;
     startJump();
   }
 
-  // Draw bounding box in yellow for debugging
+  // Draw bounding box (yellow for visibility)
   ctx.strokeStyle = 'yellow';
   ctx.lineWidth = 2;
   ctx.strokeRect(petX, petY, width, height);
 
+  // Draw the pet image based on facing direction with flipping
   if (facing === 1) {
-    ctx.drawImage(petImgRight, petX, petY, width, height);
+    // Flip image horizontally
+    ctx.save();
+    ctx.scale(-1, 1);
+    ctx.drawImage(petImgLeft, -petX - width, petY, width, height);
+    ctx.restore();
   } else {
+    // Normal drawing facing left
     ctx.drawImage(petImgLeft, petX, petY, width, height);
   }
 
   requestAnimationFrame(animate);
 }
 
-// Wait for both images to load before starting animation
-let imagesLoaded = 0;
-function onImageLoad() {
-  imagesLoaded++;
-  if (imagesLoaded === 2) {
-    animate();
-  }
-}
-
-petImgLeft.onload = onImageLoad;
-petImgRight.onload = onImageLoad;
+// Start animation once image is loaded
+petImgLeft.onload = () => {
+  animate();
+};
 
 
 
