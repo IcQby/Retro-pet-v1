@@ -10,10 +10,11 @@ let petImgLeft = new Image();
 petImgLeft.src = 'icon/icon-192.png';
 let petImgRight = new Image();
 
-let petX = canvas.width, petY = groundY;
-let slidingIn = true;
+let petX = canvas.width - width - 10;  // Start near right edge inside canvas
+let petY = groundY;
 let vx = 0, vy = 0, gravity = 0.4;
-let direction = -1, facing = -1;
+let direction = -1;  // moving left initially
+let facing = -1;     // facing left initially
 
 function startJump() {
   const speed = 6, angle = Math.PI * 65 / 180;
@@ -31,6 +32,7 @@ petImgLeft.onload = () => {
   offctx.drawImage(petImgLeft, 0, 0, width, height);
   petImgRight.src = off.toDataURL();
   petImgRight.onload = () => {
+    startJump();       // start jumping once images are ready
     requestAnimationFrame(animate);
   };
 };
@@ -69,20 +71,15 @@ function animate() {
   ctx.lineWidth = 2;
   ctx.strokeRect(petX, petY, width, height);
 
-  // Draw the pet image
-  ctx.save();
+  // Draw the pet image based on facing direction
   if (facing === 1) {
-    ctx.translate(petX + width, petY);
-    ctx.scale(-1, 1);
-    ctx.drawImage(petImg, 0, 0, width, height);
+    ctx.drawImage(petImgRight, petX, petY, width, height);
   } else {
-    ctx.drawImage(petImg, petX, petY, width, height);
+    ctx.drawImage(petImgLeft, petX, petY, width, height);
   }
-  ctx.restore();
 
   requestAnimationFrame(animate);
 }
-
 
 petImg.onload = () => {
   animate();
