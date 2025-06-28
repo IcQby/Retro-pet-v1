@@ -54,16 +54,6 @@ function animate() {
   requestAnimationFrame(animate);
 }
 
-
-
-
-function animate() {
-  petX += petVX;
-
-  if (petX + 180 > canvas.width || petX < 0) petVX = -petVX;
-
-  drawPet(petX);
-  requestAnimationFrame(animate);
 }
 
 // Interaction functions (with stats update)
