@@ -1,10 +1,9 @@
-
 const canvas = document.getElementById('pet-canvas');
 const ctx = canvas.getContext('2d');
 canvas.width = 600;
 canvas.height = 300;
 
-const width = 100, height = 100;
+const width = 204, height = 204;  // use image actual size
 const groundY = canvas.height - height - 20;
 
 let petImgLeft = new Image();
@@ -51,10 +50,12 @@ function animate() {
     startJump();
   }
 
-  // Draw bounding box (yellow for visibility)
-  ctx.strokeStyle = 'yellow';
-  ctx.lineWidth = 2;
-  ctx.strokeRect(petX, petY, width, height);
+  /*
+  // Bounding box in red (was yellow, now commented out)
+  // ctx.strokeStyle = 'red';
+  // ctx.lineWidth = 2;
+  // ctx.strokeRect(petX, petY, width, height);
+  */
 
   // Draw the pet image based on facing direction with flipping
   if (facing === 1) {
