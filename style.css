@@ -1,10 +1,10 @@
 body {
-  background-color: #ADD8E6; /* Light blue background for the page */
+  background-color: #000;  /* Set the page background to black */
   color: #0f0;
   font-family: monospace, monospace;
   text-align: center;
   margin: 0;
-  padding: 0; /* Removed padding to eliminate left gap */
+  padding: 0;
 }
 
 button {
@@ -26,5 +26,5 @@ button:hover {
   display: block;           /* Make canvas a block element */
   margin: 0 auto 1rem auto; /* Center horizontally, margin bottom 1rem */
   image-rendering: pixelated;
-  background-color: transparent;  /* Ensure canvas has no background */
+  background-color: transparent; /* Ensure canvas has no background */
 }
