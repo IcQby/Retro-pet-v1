@@ -1,64 +1,60 @@
 const CACHE_NAME = 'retro-pet-cache-v1';
 const urlsToCache = [
-  '/',
-  '/index.html',
-  '/app.js',
-  '/style.css',
-  '/manifest.json',
-  '/icon/icon-192.png',
-  '/icon/icon-512.png'
+  './',
+  './index.html',
+  './app.js',
+  './style.css',
+  './manifest.json',
+  './icon/icon-192.png',
+  './icon/icon-512.png'
 ];
 
-// Install event - caching app shell
+// Install - cache files
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => cache.addAll(urlsToCache))
   );
+  self.skipWaiting();
 });
 
-// Activate event - clean up old caches if needed
+// Activate - cleanup old caches
 self.addEventListener('activate', event => {
-  event.waitUntil(self.clients.claim());
+  event.waitUntil(
+    caches.keys().then(keys =>
+      Promise.all(
+        keys.filter(key => key !== CACHE_NAME)
+            .map(key => caches.delete(key))
+      )
+    )
+  );
+  self.clients.claim();
 });
 
-// Fetch event - serve cached or network
+// Fetch - serve cached content when offline
 self.addEventListener('fetch', event => {
   event.respondWith(
-    caches.match(event.request).then(response => response || fetch(event.request))
+    fetch(event.request)
+      .then(response => {
+        // Clone response and cache it
+        const responseClone = response.clone();
+        caches.open(CACHE_NAME).then(cache => {
+          cache.put(event.request, responseClone);
+        });
+        return response;
+      })
+      .catch(() => caches.match(event.request))
   );
 });
 
-// Background Sync event example
+// Background sync (example - just logs sync events)
 self.addEventListener('sync', event => {
-  console.log('Service Worker sync event:', event.tag);
-  if (event.tag.startsWith('sync-')) {
-    event.waitUntil(doBackgroundSync(event.tag));
+  if (event.tag === 'sync-retro-pet-data') {
+    event.waitUntil(syncRetroPetData());
   }
 });
 
-async function doBackgroundSync(tag) {
-  // Placeholder: simulate sync delay
-  console.log(`[Service Worker] Background syncing: ${tag}`);
-  // Here you would sync queued data with your backend
-  return Promise.resolve();
+async function syncRetroPetData() {
+  // Implement your data sync logic here
+  console.log('Background sync triggered for Retro Pet data!');
+  // Example: send pending data to server
 }
-
-// Push Notification event
-self.addEventListener('push', event => {
-  let data = { title: 'Retro Pet', body: 'You have a new notification!' };
-  if (event.data) {
-    try {
-      data = event.data.json();
-    } catch {
-      data.body = event.data.text();
-    }
-  }
-  const options = {
-    body: data.body,
-    icon: '/icon/icon-192.png',
-    badge: '/icon/icon-192.png',
-  };
-  event.waitUntil(
-    self.registration.showNotification(data.title, options)
-  );
-});
