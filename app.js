@@ -15,10 +15,10 @@ let slidingIn = true;
 
 let vx = 0;
 let vy = 0;
-let gravity = 0.4;
+const gravity = 0.4;
 
 let direction = -1; // movement direction: -1 = left, 1 = right
-let facing = -1;    // which way image is facing (start facing left, original image orientation)
+let facing = -1;    // which way image is facing (start facing left)
 
 function startJump() {
   const speed = 6;
@@ -28,7 +28,7 @@ function startJump() {
 }
 
 petImg.onload = () => {
-  requestAnimationFrame(animate);
+  animate();
 };
 
 function animate() {
@@ -69,7 +69,6 @@ function animate() {
 
   ctx.save();
 
-  // Flip if facing right, since original faces left
   if (facing === 1) {
     ctx.translate(petX + width / 2, 0);
     ctx.scale(-1, 1);
@@ -82,7 +81,6 @@ function animate() {
 
   requestAnimationFrame(animate);
 }
-
 
 // The rest of your code (stats, interactions, background sync, push) stays the same...
 
