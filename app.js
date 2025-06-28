@@ -11,7 +11,7 @@ let petX = 0;
 let direction = 1; // 1 = moving right, -1 = moving left
 
 // Jump parameters
-const jumpDistance = 200;  // horizontal distance of one hop in pixels
+const jumpDistance = 150;  // horizontal distance of one hop in pixels
 const jumpDuration = 100;  // number of animation frames per hop (higher = slower)
 const baseY = canvas.height / 2 - height / 2;
 const offset = 20;         // vertical offset so start/end aren’t on ground
@@ -41,19 +41,21 @@ function drawPet(x, y) {
 }
 
 function animate() {
-  frame++;
-  if (frame > jumpDuration) frame = 0;
+  // hopPhase from 0 to 1 for each hop cycle
+  let relativeX = (petX % hopWidth + hopWidth) % hopWidth;
+  const hopPhase = relativeX / hopWidth;
 
-  // Progress of jump from 0 to 1
-  const progress = frame / jumpDuration;
+  // Speed faster at edges, slower at peak:
+  // Use absolute cosine: max at 0 and 1, min at 0.5
+  const speedMultiplier = Math.abs(Math.cos(Math.PI * hopPhase));
+  // Or alternatively: const speedMultiplier = 1 - Math.sin(Math.PI * hopPhase);
 
-  // Vertical position follows a parabola: starts and ends at baseY + offset, peaks at jumpHeight above
-  const jumpY = baseY + offset + 4 * jumpHeight * progress * (1 - progress);
+  const maxSpeed = 3;
+  const effectiveSpeed = maxSpeed * speedMultiplier;
 
-  // Horizontal position moves steadily in current direction
-  petX += direction * (jumpDistance / jumpDuration);
+  petX += direction * effectiveSpeed;
 
-  // Reverse direction when hitting edges, and clamp position
+  // Bounce and flip at edges
   if (petX + width > canvas.width) {
     direction = -1;
     petX = canvas.width - width;
@@ -62,7 +64,20 @@ function animate() {
     petX = 0;
   }
 
-  drawPet(petX, jumpY);
+  // Vertical arc (still smooth sine for natural hop)
+  const petY = baseY - Math.sin(Math.PI * hopPhase) * hopHeight;
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.save();
+
+  if (direction === -1) {
+    ctx.translate(petX + width / 2, 0);
+    ctx.scale(-1, 1);
+    ctx.translate(-(petX + width / 2), 0);
+  }
+
+  ctx.drawImage(petImg, petX, petY, width, height);
+  ctx.restore();
 
   requestAnimationFrame(animate);
 }
