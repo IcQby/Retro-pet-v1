@@ -29,6 +29,7 @@ function startJump() {
   vx = direction * speed * Math.cos(angle);
   vy = -speed * Math.sin(angle);
 }
+
 function animate() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -43,25 +44,23 @@ function animate() {
     }
   } else {
     vy += gravity;
-
-    // Predict next X position
-    let nextX = petX + vx;
-    // Check horizontal boundaries and bounce if needed
-    if (nextX <= 0) {
-      nextX = 0;
-      direction = 1;
-      facing = 1;
-      vx = Math.abs(vx);
-    } else if (nextX + width >= canvas.width) {
-      nextX = canvas.width - width;
-      direction = -1;
-      facing = -1;
-      vx = -Math.abs(vx);
-    }
-
-    petX = nextX;
+    petX += vx;
     petY += vy;
 
+    // Bounce horizontally if pet hits canvas sides (even mid-air)
+    if (petX <= 0) {
+      petX = 0;
+      direction = 1;
+      facing = 1;
+      vx = Math.abs(vx);  // reverse horizontal velocity to right
+    } else if (petX + width >= canvas.width) {
+      petX = canvas.width - width;
+      direction = -1;
+      facing = -1;
+      vx = -Math.abs(vx); // reverse horizontal velocity to left
+    }
+
+    // When landing on ground, reset vertical position and jump again
     if (petY >= groundY) {
       petY = groundY;
       startJump();
@@ -71,17 +70,27 @@ function animate() {
   ctx.save();
 
   if (facing === 1) {
+    // Flip horizontally around pet center:
+    // Translate to center, scaleX = -1, translate back adjusted for width
     ctx.translate(petX + width / 2, petY + height / 2);
     ctx.scale(-1, 1);
     ctx.translate(-(petX + width / 2), -(petY + height / 2));
   }
 
   ctx.drawImage(petImg, petX, petY, width, height);
+
+  // Debug: draw bounding box so you can see actual pet bounds
+  ctx.strokeStyle = 'red';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(petX, petY, width, height);
+
   ctx.restore();
+
+  // Uncomment to debug position values in console:
+  // console.log(`petX: ${petX.toFixed(1)}, petY: ${petY.toFixed(1)}, right edge: ${(petX + width).toFixed(1)}`);
 
   requestAnimationFrame(animate);
 }
-
 
 petImg.onload = () => {
   animate();
