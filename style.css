@@ -1,5 +1,5 @@
 body {
-  background-color: #ADD8E6; /* Light blue sky */
+  background-color: #ADD8E6; /* Light blue background for the page */
   color: #0f0;
   font-family: monospace, monospace;
   text-align: center;
@@ -23,8 +23,8 @@ button:hover {
 }
 
 #pet-canvas {
-  display: block;
-  margin: 0 auto 1rem auto;
+  display: block;           /* Make canvas a block element */
+  margin: 0 auto 1rem auto; /* Center horizontally, margin bottom 1rem */
   image-rendering: pixelated;
-  /* Remove the background-color line here */
+  background-color: transparent;  /* Ensure canvas has no background */
 }
