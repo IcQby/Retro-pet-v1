@@ -1,9 +1,21 @@
 const canvas = document.getElementById('pet-canvas');
 const ctx = canvas.getContext('2d');
-canvas.width = 600;
-canvas.height = 300;
 
-const width = 204, height = 204;  // use image actual size
+function resizeCanvas() {
+  canvas.width = window.innerWidth;
+  canvas.height = 300;
+}
+resizeCanvas();
+
+window.addEventListener('resize', () => {
+  resizeCanvas();
+  // Keep pet inside canvas after resize
+  if (petX + width > canvas.width) {
+    petX = canvas.width - width;
+  }
+});
+
+const width = 204, height = 204;  // use actual image size
 const groundY = canvas.height - height - 20;
 
 let petImgLeft = new Image();
@@ -51,7 +63,7 @@ function animate() {
   }
 
   /*
-  // Bounding box in red (was yellow, now commented out)
+  // Bounding box in red (commented out)
   // ctx.strokeStyle = 'red';
   // ctx.lineWidth = 2;
   // ctx.strokeRect(petX, petY, width, height);
@@ -59,13 +71,11 @@ function animate() {
 
   // Draw the pet image based on facing direction with flipping
   if (facing === 1) {
-    // Flip image horizontally
     ctx.save();
     ctx.scale(-1, 1);
     ctx.drawImage(petImgLeft, -petX - width, petY, width, height);
     ctx.restore();
   } else {
-    // Normal drawing facing left
     ctx.drawImage(petImgLeft, petX, petY, width, height);
   }
 
