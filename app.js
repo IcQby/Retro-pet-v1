@@ -8,19 +8,21 @@ petImg.src = 'icon/icon-192.png';
 const width = 204;
 const height = 204;
 
-let direction = -1; // going left
-let hopProgress = 1; // 0 to 1 for hop cycle, start at end so pig enters
-const hopWidth = 200;
-const hopHeight = 40;
-const baseY = canvas.height / 2 - height / 2;
-const maxSpeed = 0.008; // hop progress speed
+let direction = -1; // start moving left
+let hopProgress = 0; // 0..1 for hop arc progress
+const maxHopSpeed = 0.008; // controls hop speed
 
-let petX = canvas.width; // start just off right edge (entering)
+let petX = canvas.width; // start offscreen right
 
 function animate() {
-  // Update hopProgress only when fully inside
-  if (petX <= canvas.width - width) {
-    hopProgress += direction * maxSpeed;
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  if (petX > canvas.width - width) {
+    // Entering: move left linearly at fixed speed, no hop, no flip
+    petX -= 2; // adjust speed here
+  } else {
+    // Fully inside: update hopProgress for arc (0..1 back and forth)
+    hopProgress += direction * maxHopSpeed;
     if (hopProgress >= 1) {
       hopProgress = 1;
       direction = -1;
@@ -28,29 +30,27 @@ function animate() {
       hopProgress = 0;
       direction = 1;
     }
-  } else {
-    // While entering, move linearly left at constant speed, no hop progress change
-    petX -= 2; // pixels per frame - adjust speed here
+    // Move horizontally with speed modulated by hop phase (cosine)
+    const speedMultiplier = Math.abs(Math.cos(Math.PI * hopProgress));
+    const hopSpeed = 3 * speedMultiplier;
+    petX += direction * hopSpeed;
+    // Clamp petX to edges and flip direction if needed
+    if (petX <= 0) {
+      petX = 0;
+      direction = 1;
+    } else if (petX + width >= canvas.width) {
+      petX = canvas.width - width;
+      direction = -1;
+    }
   }
 
-  // Calculate petX and petY for hop or entry
-  if (petX <= canvas.width - width) {
-    // normal hopping
-    petX = direction === 1
-      ? hopProgress * (canvas.width - width)
-      : (1 - hopProgress) * (canvas.width - width);
-  } 
-  // else keep petX as is (linear move in)
+  // Vertical position: baseY if entering, otherwise arc
+  const petY = petX > canvas.width - width
+    ? baseY
+    : baseY - Math.sin(Math.PI * hopProgress) * hopHeight;
 
-  // Vertical position - if entering, keep petY at baseY (no hop yet)
-  const petY = petX <= canvas.width - width
-    ? baseY - Math.sin(Math.PI * hopProgress) * hopHeight
-    : baseY;
-
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.save();
-
-  // Flip only if hopping left AND fully inside (not during entry)
+  // Flip horizontally if going left and fully inside
   if (direction === -1 && petX <= canvas.width - width) {
     ctx.translate(petX + width / 2, 0);
     ctx.scale(-1, 1);
@@ -62,6 +62,7 @@ function animate() {
 
   requestAnimationFrame(animate);
 }
+
 
 
 
