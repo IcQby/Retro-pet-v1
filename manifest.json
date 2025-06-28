@@ -15,18 +15,7 @@
   "iarc_rating_id": "europe.pegi.3",
   "launch_handler": {
     "client_mode": "navigate"
-  },
-  "screenshots": [
-    {
-      "src": "screenshot1.png",
-      "sizes": "320x568",
-      "type": "image/png"
-    },
-    {
-      "src": "screenshot2.png",
-      "sizes": "320x568",
-      "type": "image/png"
-    }
+  }
   ],
   "icons": [
     {
