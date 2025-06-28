@@ -31,7 +31,6 @@ function startJump() {
 }
 
 function animate() {
-function animate() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   if (slidingIn) {
@@ -45,21 +44,28 @@ function animate() {
     }
   } else {
     vy += gravity;
-    petX += vx;
-    petY += vy;
 
-    if (petX < 0) {
+    // Predict next horizontal position
+    const nextX = petX + vx;
+
+    // Horizontal bounce check BEFORE moving
+    if (nextX < 0) {
       petX = 0;
       vx = Math.abs(vx);
       direction = 1;
       facing = 1;
-    } else if (petX + width > canvas.width) {
+    } else if (nextX + width > canvas.width) {
       petX = canvas.width - width;
       vx = -Math.abs(vx);
       direction = -1;
       facing = -1;
+    } else {
+      petX = nextX;
     }
 
+    petY += vy;
+
+    // Bounce vertically on ground
     if (petY >= groundY) {
       petY = groundY;
       startJump();
@@ -79,7 +85,6 @@ function animate() {
 
   requestAnimationFrame(animate);
 }
-
 
 petImg.onload = () => {
   animate();
