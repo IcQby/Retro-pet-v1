@@ -10,33 +10,32 @@
 </head>
 <body>
   <div id="app">
-    <h1>🐣 Retro Pet</h1>
-    <canvas id="pet-canvas" width=window.innerWidth height="300"</canvas>
+    <h1>🐖 Retro Pet</h1>
+    <canvas id="pet-canvas" width="100%" height="300"></canvas>
+
     <div id="controls">
-      <button onclick="feedPet()">Feed 🍗</button>
-      <button onclick="playWithPet()">Play 🎮</button>
-      <button onclick="cleanPet()">Clean 🧼</button>
-      <button onclick="sleepPet()">Sleep 💤</button>
-      <button onclick="healPet()">Medicine 💊</button>
+      <button onclick="feedPet()">🥬 Feed 🍽️</button>
+      <button onclick="playWithPet()">🏀 Play 🎮</button>
+      <button onclick="cleanPet()">🧴 Clean 🚿</button>
+      <button onclick="sleepPet()">🌙 Sleep 🛏️</button>
+      <button onclick="healPet()">💊 Medicine 🩹</button>
     </div>
+
     <div id="stats">
-      <p>❤️ Happiness: <span id="happiness"></span></p>
+      <p>💖 Happiness: <span id="happiness"></span></p>
       <p>🍗 Hunger: <span id="hunger"></span></p>
-      <p>🧼 Cleanliness: <span id="cleanliness"></span></p>
-      <p>💊 Health: <span id="health"></span></p>
+      <p>🚿 Cleanliness: <span id="cleanliness"></span></p>
+      <p>❤️ Health: <span id="health"></span></p>
     </div>
   </div>
+
   <script src="app.js"></script>
   <script>
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./service-worker.js')
-      .then(reg => console.log('Service Worker registered:', reg.scope))
-      .catch(err => console.error('Service Worker registration failed:', err));
-  }
-</script>
-
-
-
-
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('./service-worker.js')
+        .then(reg => console.log('Service Worker registered:', reg.scope))
+        .catch(err => console.error('Service Worker registration failed:', err));
+    }
+  </script>
 </body>
 </html>
