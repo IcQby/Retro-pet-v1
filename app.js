@@ -33,13 +33,13 @@ function startJump() {
 function animate() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  const leftBound = 0;                // Left boundary line
-  const rightBound = canvas.width - width;  // Right boundary line
+  const leftBound = 0;
+  const rightBound = canvas.width;
 
   if (slidingIn) {
     petX -= 2;
-    if (petX <= rightBound - 10) {  // slide in stops 10px before right bound
-      petX = rightBound - 10;
+    if (petX <= rightBound - width - 10) {
+      petX = rightBound - width - 10;
       slidingIn = false;
       direction = -1;
       facing = -1;
@@ -50,14 +50,29 @@ function animate() {
     petX += vx;
     petY += vy;
 
-    // Bounce if hit left or right bounds
-    if (petX <= leftBound) {
-      petX = leftBound;
+    // Calculate edges based on facing
+    let petLeftEdge, petRightEdge;
+    if (facing === -1) {
+      petLeftEdge = petX;
+      petRightEdge = petX + width;
+    } else {
+      petLeftEdge = petX - width;
+      petRightEdge = petX;
+    }
+
+    // Bounce on hitting boundaries
+    if (petLeftEdge <= leftBound) {
+      // Clamp
+      if (facing === 1) petX = leftBound + width;
+      else petX = leftBound;
+
       direction = 1;
       facing = 1;
       vx = Math.abs(vx);
-    } else if (petX >= rightBound) {
-      petX = rightBound;
+    } else if (petRightEdge >= rightBound) {
+      if (facing === 1) petX = rightBound;
+      else petX = rightBound - width;
+
       direction = -1;
       facing = -1;
       vx = -Math.abs(vx);
@@ -69,18 +84,16 @@ function animate() {
     }
   }
 
-  // Draw hitbox boundary lines for debugging
+  // Draw debug boundary lines
   ctx.strokeStyle = 'red';
   ctx.lineWidth = 2;
-
   ctx.beginPath();
   ctx.moveTo(leftBound, 0);
   ctx.lineTo(leftBound, canvas.height);
   ctx.stroke();
-
   ctx.beginPath();
-  ctx.moveTo(rightBound + width, 0);  // right bound + width for clarity
-  ctx.lineTo(rightBound + width, canvas.height);
+  ctx.moveTo(rightBound, 0);
+  ctx.lineTo(rightBound, canvas.height);
   ctx.stroke();
 
   ctx.save();
