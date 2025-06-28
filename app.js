@@ -69,22 +69,17 @@ function animate() {
 
   ctx.save();
 
-  if (facing === 1) {
-    // Flip horizontally around pet center:
-    // Translate to center, scaleX = -1, translate back adjusted for width
-    ctx.translate(petX + width / 2, petY + height / 2);
-    ctx.scale(-1, 1);
-    ctx.translate(-(petX + width / 2), -(petY + height / 2));
-  }
-
+if (facing === 1) {
+  // Instead of flipping around center, flip around top-left and shift petX by width
+  ctx.translate(petX + width, petY);
+  ctx.scale(-1, 1);
+  ctx.drawImage(petImg, 0, 0, width, height);
+} else {
   ctx.drawImage(petImg, petX, petY, width, height);
+}
 
-  // Debug: draw bounding box so you can see actual pet bounds
-  ctx.strokeStyle = 'red';
-  ctx.lineWidth = 2;
-  ctx.strokeRect(petX, petY, width, height);
+ctx.restore();
 
-  ctx.restore();
 
   // Uncomment to debug position values in console:
   // console.log(`petX: ${petX.toFixed(1)}, petY: ${petY.toFixed(1)}, right edge: ${(petX + width).toFixed(1)}`);
