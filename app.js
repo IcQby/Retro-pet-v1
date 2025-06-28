@@ -2,7 +2,11 @@ const canvas = document.getElementById('pet-canvas');
 const ctx = canvas.getContext('2d');
 
 const petImg = new Image();
-petImg.src = 'icon/icon-192.png';  // Your icon file
+petImg.src = 'icon/icon-192.png';
+
+petImg.onload = () => {
+  animate();
+};
 
 let pet = {
   happiness: 50,
