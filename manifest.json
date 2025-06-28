@@ -1,25 +1,11 @@
 {
-  "id": "/",
   "name": "Retro Pet",
-  "short_name": "Pet",
-  "description": "A retro-style virtual pet game inspired by Tamagotchi.",
-  "start_url": ".",
+  "short_name": "Retro pet",
+  "start_url": "./",
   "display": "standalone",
   "background_color": "#000000",
   "theme_color": "#00ff00",
   "orientation": "portrait",
-  "screenshots": [
-    {
-      "src": "screenshot1.png",
-      "sizes": "320x568",
-      "type": "image/png"
-    },
-    {
-      "src": "screenshot2.png",
-      "sizes": "320x568",
-      "type": "image/png"
-    }
-  ],
   "icons": [
     {
       "src": "icon/icon-192.png",
