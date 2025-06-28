@@ -7,7 +7,7 @@
   "theme_color": "#00ff00",
   "icons": [
     {
-      "src": "retro_pet_pig_icon-512.png",
+      "src": "retro_pet_pig_icon_512.png",
       "sizes": "512x512",
       "type": "image/png"
     }
