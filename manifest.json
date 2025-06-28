@@ -1,10 +1,10 @@
 {
-  "id": "/retro-pet-v1/",
+  "id": "/Retro-pet-v1/",
   "name": "Retro Pet",
   "short_name": "Retro pet",
   "description": "A retro-style virtual pet game inspired by Tamagotchi.",
-  "start_url": "./",
-  "scope": "./",
+  "start_url": "/Retro-pet-v1/",
+  "scope": "/Retro-pet-v1/",
   "display": "standalone",
   "background_color": "#000000",
   "theme_color": "#00ff00",
@@ -35,12 +35,5 @@
       "id": "com.example.retropet"
     }
   ],
-  "scope_extensions": [
-    {
-      "origin": "https://icqby.github.io"
-    }
-  ],
-  "prefer_related_applications": false,
-  "background_color": "#000000",
-  "theme_color": "#00ff00"
+  "prefer_related_applications": false
 }
