@@ -4,73 +4,63 @@ const ctx = canvas.getContext('2d');
 const petImg = new Image();
 petImg.src = 'icon/icon-192.png';
 
-const width = 204;
-const height = 204;
+const width = 100;
+const height = 100;
+const groundY = canvas.height - height - 20; // vertical position baseline
 
-const baseY = canvas.height / 2 - height / 2; // vertical baseline for hopping (centered)
-const hopHeight = 40; // max vertical hop height
+let petX = canvas.width; // start just offscreen right
+let petY = groundY;
 
+let slidingIn = true;
 
-let facing = -1;       // horizontal direction: -1 for left, 1 for right
-let hopProgress = 0;   // always moves 0 → 1 → 0
-let hoppingForward = true; // direction of hop arc only
+let vx = 0;
+let vy = 0;
+let gravity = 0.4;
+let jumpTimer = 0;
+let direction = -1; // -1 = left, 1 = right
 
-let petX = canvas.width; // start offscreen right
+const jumpDuration = 1700; // 1.7 seconds total
+const frameRate = 1000 / 60;
 
 petImg.onload = () => {
-  animate();
+  requestAnimationFrame(animate);
 };
 
-let facing = -1; // direction of horizontal movement (left = -1, right = 1)
+function startJump() {
+  // Simulate ~65° angle jump by setting vx/vy accordingly
+  const speed = 6;
+  const angle = Math.PI * 65 / 180; // ≈65°
+  vx = direction * speed * Math.cos(angle);
+  vy = -speed * Math.sin(angle);
+}
 
 function animate() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  const isEntering = petX > canvas.width - width;
-
-  if (isEntering) {
-    // Slide in from right without hopping
+  if (slidingIn) {
     petX -= 2;
-  } else {
-    // Update hopProgress (arc: 0 -> 1 -> 0 loop)
-    if (hoppingForward) {
-      hopProgress += maxHopSpeed;
-      if (hopProgress >= 1) {
-        hopProgress = 1;
-        hoppingForward = false;
-      }
-    } else {
-      hopProgress -= maxHopSpeed;
-      if (hopProgress <= 0) {
-        hopProgress = 0;
-        hoppingForward = true;
-      }
-    }
-
-    // Move horizontally with cosine-based speed
-    const speedMultiplier = Math.abs(Math.cos(Math.PI * hopProgress));
-    const hopSpeed = 3 * speedMultiplier;
-    petX += facing * hopSpeed;
-
-    // Reverse at screen edges
-    if (petX <= 0) {
-      petX = 0;
-      facing = 1;
-    } else if (petX + width >= canvas.width) {
+    if (petX <= canvas.width - width) {
       petX = canvas.width - width;
-      facing = -1;
+      slidingIn = false;
+      startJump();
+    }
+  } else {
+    // Apply gravity
+    vy += gravity;
+    petX += vx;
+    petY += vy;
+
+    // Check for landing
+    if (petY >= groundY) {
+      petY = groundY;
+      direction *= -1;
+      startJump(); // new jump
     }
   }
 
-  // Calculate vertical hop arc
-  const petY = isEntering
-    ? baseY
-    : baseY - Math.sin(Math.PI * hopProgress) * hopHeight;
-
   ctx.save();
-
-  // Flip image if moving left and fully inside
-  if (!isEntering && facing === -1) {
+  // Flip horizontally if moving left
+  if (direction === -1) {
     ctx.translate(petX + width / 2, 0);
     ctx.scale(-1, 1);
     ctx.translate(-(petX + width / 2), 0);
