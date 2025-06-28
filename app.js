@@ -29,6 +29,8 @@ function startJump() {
   vx = direction * speed * Math.cos(angle);
   vy = -speed * Math.sin(angle);
 }
+let leftEdgeShifted = false;  // flag to track if shifted after hitting left edge
+
 function animate() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -46,7 +48,19 @@ function animate() {
     petX += vx;
     petY += vy;
 
-    // Bounce and clamp horizontally to keep pet inside canvas
+    // When hitting left edge, shift petX temporarily by 1 width right
+    if (petX < 0 && !leftEdgeShifted) {
+      petX += width;     // shift right by 1 image width
+      leftEdgeShifted = true;
+    }
+
+    // After shifting, if petX is now beyond 0, revert it back next frame
+    if (leftEdgeShifted && petX >= 0) {
+      petX -= width;     // revert to original position
+      leftEdgeShifted = false;
+    }
+
+    // Bounce and clamp horizontally (adjusted for shifting)
     if (petX < 0) {
       petX = 0;
       direction = 1;
@@ -59,14 +73,13 @@ function animate() {
       vx = -Math.abs(vx);
     }
 
-    // Bounce vertically - when hitting ground, reset vertical velocity and jump again
     if (petY >= groundY) {
       petY = groundY;
       startJump();
     }
   }
 
-  // Draw bounding box for debugging
+  // Debug bounding box
   ctx.strokeStyle = 'red';
   ctx.lineWidth = 2;
   ctx.strokeRect(petX, petY, width, height);
@@ -74,10 +87,8 @@ function animate() {
   ctx.save();
 
   if (facing === 1) {
-    // Flip horizontally around center of image
     ctx.translate(petX + width / 2, petY + height / 2);
     ctx.scale(-1, 1);
-    // Draw image centered at 0,0, so top-left corner at -width/2, -height/2
     ctx.drawImage(petImg, -width / 2, -height / 2, width, height);
   } else {
     ctx.drawImage(petImg, petX, petY, width, height);
@@ -87,8 +98,6 @@ function animate() {
 
   requestAnimationFrame(animate);
 }
-
-
 
 petImg.onload = () => {
   animate();
