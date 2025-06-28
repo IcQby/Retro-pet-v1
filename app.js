@@ -48,37 +48,52 @@ function animate() {
       startJump();
     }
   } else {
+    // Apply gravity and velocity
     vy += gravity;
     petX += vx;
     petY += vy;
 
-    // Bounce off walls (petX is always left edge)
-    if (petX < 0) {
+    // Compute left and right edges
+    const petLeft = petX;
+    const petRight = petX + width;
+
+    // Wall bounce logic
+    if (petLeft <= 0) {
       petX = 0;
-      direction = 1; facing = 1; vx = Math.abs(vx);
-    } else if (petX + width > canvas.width) {
+      direction = 1;
+      facing = 1;
+      vx = Math.abs(vx);
+    } else if (petRight >= canvas.width) {
       petX = canvas.width - width;
-      direction = -1; facing = -1; vx = -Math.abs(vx);
+      direction = -1;
+      facing = -1;
+      vx = -Math.abs(vx);
     }
 
-    // Ground bounce
+    // Ground collision
     if (petY >= groundY) {
       petY = groundY;
       startJump();
     }
   }
 
-  // Debug box
+  // Debug: draw red bounding box
   ctx.strokeStyle = 'red';
   ctx.lineWidth = 2;
   ctx.strokeRect(petX, petY, width, height);
 
-  // Draw image
+  // Draw pet image with flip if needed
+  ctx.save();
+
   if (facing === 1) {
-    ctx.drawImage(petImgRight, petX, petY, width, height);
+    ctx.translate(petX + width, petY); // Flip anchor on right edge
+    ctx.scale(-1, 1); // Flip horizontally
+    ctx.drawImage(petImg, 0, 0, width, height);
   } else {
-    ctx.drawImage(petImgLeft, petX, petY, width, height);
+    ctx.drawImage(petImg, petX, petY, width, height);
   }
+
+  ctx.restore();
 
   requestAnimationFrame(animate);
 }
