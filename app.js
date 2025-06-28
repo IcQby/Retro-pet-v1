@@ -38,61 +38,46 @@ petImgLeft.onload = () => {
 function animate() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  if (slidingIn) {
-    petX -= 2;
-    if (petX <= canvas.width - width - 10) {
-      petX = canvas.width - width - 10;
-      slidingIn = false;
-      direction = -1;
-      facing = -1;
-      startJump();
-    }
-  } else {
-    // Apply gravity and velocity
-    vy += gravity;
-    petX += vx;
-    petY += vy;
+  // Gravity and movement
+  vy += gravity;
+  petX += vx;
+  petY += vy;
 
-    // Compute left and right edges
-    const petLeft = petX;
-    const petRight = petX + width;
-
-    // Wall bounce logic
-    if (petLeft <= 0) {
-      petX = 0;
-      direction = 1;
-      facing = 1;
-      vx = Math.abs(vx);
-    } else if (petRight >= canvas.width) {
-      petX = canvas.width - width;
-      direction = -1;
-      facing = -1;
-      vx = -Math.abs(vx);
-    }
-
-    // Ground collision
-    if (petY >= groundY) {
-      petY = groundY;
-      startJump();
-    }
+  // Bounce off left wall
+  if (petX <= 0) {
+    petX = 0;
+    direction = 1;
+    facing = 1;
+    vx = Math.abs(vx);
+  }
+  // Bounce off right wall
+  else if (petX + width >= canvas.width) {
+    petX = canvas.width - width;
+    direction = -1;
+    facing = -1;
+    vx = -Math.abs(vx);
   }
 
-  // Debug: draw red bounding box
+  // Bounce off ground
+  if (petY >= groundY) {
+    petY = groundY;
+    startJump();
+  }
+
+  // Draw bounding box for debugging
   ctx.strokeStyle = 'red';
   ctx.lineWidth = 2;
   ctx.strokeRect(petX, petY, width, height);
 
-  // Draw pet image with flip if needed
+  // Draw the pet image
   ctx.save();
-
   if (facing === 1) {
-    ctx.translate(petX + width, petY); // Flip anchor on right edge
-    ctx.scale(-1, 1); // Flip horizontally
+    ctx.translate(petX + width, petY);
+    ctx.scale(-1, 1);
     ctx.drawImage(petImg, 0, 0, width, height);
   } else {
     ctx.drawImage(petImg, petX, petY, width, height);
   }
-
   ctx.restore();
 
   requestAnimationFrame(animate);
