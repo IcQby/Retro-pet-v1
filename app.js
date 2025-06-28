@@ -4,7 +4,7 @@ const ctx = canvas.getContext('2d');
 // Resize canvas to fit the window
 function resizeCanvas() {
   canvas.width = window.innerWidth;
-  canvas.height = 300;
+  canvas.height = 300;  // Fixed height for the canvas (300 pixels)
 }
 resizeCanvas();
 
@@ -19,14 +19,13 @@ window.addEventListener('resize', () => {
 
 // Constants for pet size
 const width = 102, height = 102;  // Actual image size
-const groundY = canvas.height - (canvas.height / 4);  // 1/4 from the bottom
-
+const groundY = canvas.height - (canvas.height / 4);  // 1/4th from the bottom
 
 // Pet image
 let petImgLeft = new Image();
 petImgLeft.src = 'icon/icon-192.png';
 
-let petX = canvas.width - width - 10, petY = groundY; // inside canvas
+let petX = canvas.width - width - 10, petY = groundY; // Inside canvas
 let vx = 0, vy = 0, gravity = 0.4;
 let direction = -1, facing = -1;
 
