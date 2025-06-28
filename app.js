@@ -1,12 +1,14 @@
 const canvas = document.getElementById('pet-canvas');
 const ctx = canvas.getContext('2d');
 
+// Resize canvas to fit the window
 function resizeCanvas() {
   canvas.width = window.innerWidth;
   canvas.height = 300;
 }
 resizeCanvas();
 
+// Keep canvas resized when window is resized
 window.addEventListener('resize', () => {
   resizeCanvas();
   // Keep pet inside canvas after resize
@@ -15,9 +17,11 @@ window.addEventListener('resize', () => {
   }
 });
 
-const width = 204, height = 204;  // use actual image size
+// Constants for pet size
+const width = 204, height = 204;  // Actual image size
 const groundY = canvas.height - height - 20;
 
+// Pet image
 let petImgLeft = new Image();
 petImgLeft.src = 'icon/icon-192.png';
 
@@ -25,6 +29,7 @@ let petX = canvas.width - width - 10, petY = groundY; // inside canvas
 let vx = 0, vy = 0, gravity = 0.4;
 let direction = -1, facing = -1;
 
+// Function to start jumping
 function startJump() {
   const speed = 6, angle = Math.PI * 65 / 180;
   vx = direction * speed * Math.cos(angle);
@@ -33,8 +38,22 @@ function startJump() {
 
 startJump();
 
+// Draw background with pastel green (ground) and light blue (air)
+function drawBackground() {
+  // Ground (pastel green)
+  ctx.fillStyle = '#90EE90';  // Pastel green color
+  ctx.fillRect(0, canvas.height * 2 / 3, canvas.width, canvas.height / 3);
+
+  // Air (light blue)
+  ctx.fillStyle = '#ADD8E6';  // Light blue color
+  ctx.fillRect(0, 0, canvas.width, canvas.height * 2 / 3);
+}
+
+// Animation function
 function animate() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  drawBackground();  // Draw the background first
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height);  // Clear previous frame
 
   // Gravity and movement
   vy += gravity;
@@ -62,13 +81,6 @@ function animate() {
     startJump();
   }
 
-  /*
-  // Bounding box in red (commented out)
-  // ctx.strokeStyle = 'red';
-  // ctx.lineWidth = 2;
-  // ctx.strokeRect(petX, petY, width, height);
-  */
-
   // Draw the pet image based on facing direction with flipping
   if (facing === 1) {
     ctx.save();
@@ -79,15 +91,13 @@ function animate() {
     ctx.drawImage(petImgLeft, petX, petY, width, height);
   }
 
-  requestAnimationFrame(animate);
+  requestAnimationFrame(animate);  // Continue animation loop
 }
 
 // Start animation once image is loaded
 petImgLeft.onload = () => {
   animate();
 };
-
-
 
 // --- Stats and interactions below (unchanged) ---
 
