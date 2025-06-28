@@ -8,7 +8,7 @@ const width = 204;
 const height = 204;
 
 let petX = 0;
-let direction = 1; // 1 = moving right, -1 = moving left
+let direction = -1; // 1 = moving right, -1 = moving left
 
 // Jump parameters
 const jumpDistance = 150;  // horizontal distance of one hop in pixels
