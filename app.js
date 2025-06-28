@@ -1,4 +1,3 @@
-
 const canvas = document.getElementById('pet-canvas');
 const ctx = canvas.getContext('2d');
 
@@ -27,7 +26,7 @@ function animate() {
 
   if (petX > canvas.width - width) {
     // Entering: move left linearly at fixed speed, no hop, no flip
-    petX -= 2; // adjust speed here
+    petX -= 2; // speed of entering from right
   } else {
     // Fully inside: update hopProgress for arc (0..1 back and forth)
     hopProgress += direction * maxHopSpeed;
@@ -38,10 +37,12 @@ function animate() {
       hopProgress = 0;
       direction = 1;
     }
+
     // Move horizontally with speed modulated by hop phase (cosine)
     const speedMultiplier = Math.abs(Math.cos(Math.PI * hopProgress));
     const hopSpeed = 3 * speedMultiplier;
     petX += direction * hopSpeed;
+
     // Clamp petX to edges and flip direction if needed
     if (petX <= 0) {
       petX = 0;
@@ -58,8 +59,9 @@ function animate() {
     : baseY - Math.sin(Math.PI * hopProgress) * hopHeight;
 
   ctx.save();
-  // Flip horizontally if going left and fully inside
-  if (direction === -1 && petX <= canvas.width - width) {
+
+  // Flip horizontally only when fully inside and moving left
+  if (petX <= canvas.width - width && direction === -1) {
     ctx.translate(petX + width / 2, 0);
     ctx.scale(-1, 1);
     ctx.translate(-(petX + width / 2), 0);
