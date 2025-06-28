@@ -11,67 +11,55 @@ const groundY = canvas.height - height - 20;
 let petX = canvas.width; // Start offscreen right
 let petY = groundY;
 
-let slidingIn = true;
-let vx = 0;
-let vy = 0;
-let gravity = 0.4;
-let direction = -1; // -1 = left, 1 = right
-let jumping = false;
+let direction = -1; // movement direction: -1 = left, 1 = right
+let facing = -1;    // which way image is facing, start facing left (original image orientation)
 
-function startJump() {
-  const jumpDuration = 1.9 * 60; // 1.7 seconds at ~60fps
-  const jumpSpeed = 6;
-  const angle = Math.PI * 65 / 180;
-  vx = direction * jumpSpeed * Math.cos(angle);
-  vy = -jumpSpeed * Math.sin(angle);
-  jumping = true;
+// Inside animate():
+
+if (slidingIn) {
+  petX -= 2;
+  if (petX <= canvas.width - width - 10) {
+    petX = canvas.width - width - 10;
+    slidingIn = false;
+    direction = -1; // keep moving left
+    facing = -1;    // face left as well
+    startJump();
+  }
+} else {
+  vy += gravity;
+  petX += vx;
+  petY += vy;
+
+  if (petY >= groundY) {
+    petY = groundY;
+
+    if (petX <= 0) {
+      petX = 0;
+      direction = 1;
+      facing = 1;   // now face right
+      startJump();
+    } else if (petX + width >= canvas.width) {
+      petX = canvas.width - width;
+      direction = -1;
+      facing = -1;  // face left
+      startJump();
+    } else {
+      startJump();  // keep hopping in same direction
+    }
+  }
 }
 
-function animate() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+ctx.save();
 
-  if (slidingIn) {
-    petX -= 2;
-    if (petX <= canvas.width - width - 10) {
-      petX = canvas.width - width - 10;
-      slidingIn = false;
-      direction = -1; // move left
-      startJump();
-    }
-  } else {
-    if (jumping) {
-      vy += gravity;
-      petX += vx;
-      petY += vy;
+// Flip the pet if the facing direction is different from original (which is left = -1)
+if (facing === 1) { // image faces right, flip horizontally
+  ctx.translate(petX + width / 2, 0);
+  ctx.scale(-1, 1);
+  ctx.translate(-(petX + width / 2), 0);
+}
 
-      if (petY >= groundY) {
-        petY = groundY;
-
-        // Hit left or right edge → bounce direction
-        if (petX <= 0) {
-          petX = 0;
-          direction = 1;
-        } else if (petX + width >= canvas.width) {
-          petX = canvas.width - width;
-          direction = -1;
-        }
-
-        startJump(); // next hop in current direction
-      }
-    }
-  }
-
-  ctx.save();
-
-  // Flip if moving left
-  if (direction === -1) {
-    ctx.translate(petX + width / 2, 0);
-    ctx.scale(-1, 1);
-    ctx.translate(-(petX + width / 2), 0);
-  }
-
-  ctx.drawImage(petImg, petX, petY, width, height);
-  ctx.restore();
+ctx.drawImage(petImg, petX, petY, width, height);
+ctx.restore();
 
   requestAnimationFrame(animate);
 }
