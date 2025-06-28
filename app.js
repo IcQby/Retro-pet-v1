@@ -15,7 +15,7 @@ let slidingIn = true;
 let vx = 0;
 let vy = 0;
 let gravity = 0.4;
-let direction = 1; // -1 = left, 1 = right
+let direction = -1; // -1 = left, 1 = right
 let jumping = false;
 
 function startJump() {
@@ -35,7 +35,7 @@ function animate() {
     if (petX <= canvas.width - width - 10) {
       petX = canvas.width - width - 10;
       slidingIn = false;
-      direction = -1; // move left
+      direction = 1; // move left
       startJump();
     }
   } else {
