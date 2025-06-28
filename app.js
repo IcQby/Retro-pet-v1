@@ -4,8 +4,6 @@ const ctx = canvas.getContext('2d');
 const petImg = new Image();
 petImg.src = 'icon/icon-192.png';
 
-petImg.onload = () => {
-
 let pet = {
   happiness: 50,
   hunger: 50,
@@ -17,16 +15,15 @@ let pet = {
 let petX = 0;
 let petVX = 2; // speed in pixels per frame
 
+const hopWidth = 100;  // horizontal length of one hop arc
+const hopHeight = 40;  // max height of hop
+
 function updateStats() {
   document.getElementById('happiness').textContent = pet.happiness;
   document.getElementById('hunger').textContent = pet.hunger;
   document.getElementById('cleanliness').textContent = pet.cleanliness;
   document.getElementById('health').textContent = pet.health;
 }
-let petX = 0;
-let petVX = 2;
-const hopWidth = 100;  // horizontal length of one hop arc
-const hopHeight = 40;  // max height of hop
 
 function drawPet(x, y) {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -42,18 +39,14 @@ function animate() {
   if (petX + 204 > canvas.width || petX < 0) petVX = -petVX;
 
   // Calculate vertical hop using sine wave mapped to hopWidth
-  // petX % hopWidth gives horizontal position inside current hop cycle
   const hopPhase = (petX % hopWidth) / hopWidth; // from 0 to 1
 
-  // Vertical position forms an arc: y = baseY - sin(pi * hopPhase) * hopHeight
-  // sin(pi * hopPhase) goes 0 → 1 → 0 for a smooth arc
+  // Vertical position forms an arc: smooth hop effect
   const baseY = canvas.height / 2 - 204 / 2;
   const petY = baseY - Math.sin(Math.PI * hopPhase) * hopHeight;
 
   drawPet(petX, petY);
   requestAnimationFrame(animate);
-}
-
 }
 
 // Interaction functions (with stats update)
