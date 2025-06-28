@@ -31,10 +31,13 @@ let direction = -1, facing = -1;
 
 // Function to start jumping
 function startJump() {
-  // Set initial jump velocity so it starts from 2/9ths of the canvas height.
+  // Reset the pet's Y position to the groundY (2/9ths from the bottom)
+  petY = groundY; 
+  
+  // Set initial jump velocity so it starts from groundY
   const speed = 6, angle = Math.PI * 65 / 180;
   vx = direction * speed * Math.cos(angle);
-  vy = -speed * Math.sin(angle); // Jump starts upward (negative velocity)
+  vy = -speed * Math.sin(angle); // Jump starts upwards (negative velocity)
 }
 
 startJump();
@@ -57,9 +60,9 @@ function animate() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);  // Clear previous frame
 
   // Gravity and movement
-  vy += gravity;
+  vy += gravity;  // Apply gravity
   petX += vx;
-  petY += vy;
+  petY += vy;  // Apply velocity change to petY
 
   // Bounce off left wall
   if (petX <= 0) {
@@ -79,7 +82,7 @@ function animate() {
   // Bounce off ground (starting position is 2/9ths from bottom)
   if (petY >= groundY) {
     petY = groundY;
-    startJump();  // Start jumping again once the pet hits the ground
+    startJump();  // Restart jump once it hits the ground
   }
 
   // Draw the pet image based on facing direction with flipping
