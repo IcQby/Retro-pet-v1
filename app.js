@@ -8,8 +8,9 @@ petImg.src = 'icon/icon-192.png';
 const width = 204;
 const height = 204;
 
-const baseY = canvas.height / 2 - height / 2;
-const hopHeight = 40;
+const baseY = canvas.height / 2 - height / 2; // vertical baseline for hopping (centered)
+const hopHeight = 40; // max vertical hop height
+
 
 let direction = -1; // start moving left
 let hopProgress = 0; // 0..1 for hop arc progress
