@@ -2,10 +2,16 @@
   "name": "Retro Pet",
   "short_name": "Retro pet",
   "start_url": "./",
+  "scope": "./",
   "display": "standalone",
   "background_color": "#000000",
   "theme_color": "#00ff00",
   "orientation": "portrait",
+  "lang": "en-US",
+  "dir": "ltr",
+  "categories": ["game", "entertainment"],
+  "iarc_rating_id": "europe.pegi.3",  
+  "launch_handler": {},
   "icons": [
     {
       "src": "icon/icon-192.png",
