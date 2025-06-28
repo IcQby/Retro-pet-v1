@@ -46,28 +46,27 @@ function animate() {
     petX += vx;
     petY += vy;
 
-    // Clamp petX inside bounds explicitly
-    if (petX < 0) petX = 0;
-    if (petX > canvas.width - width) petX = canvas.width - width;
-
-    // Bounce horizontally if pig hits canvas sides (even mid-air)
-    if (petX <= 0) {
+    // Bounce and clamp horizontally to keep pet inside canvas
+    if (petX < 0) {
+      petX = 0;
       direction = 1;
       facing = 1;
       vx = Math.abs(vx);
-    } else if (petX >= canvas.width - width) {
+    } else if (petX > canvas.width - width) {
+      petX = canvas.width - width;
       direction = -1;
       facing = -1;
       vx = -Math.abs(vx);
     }
 
+    // Bounce vertically - when hitting ground, reset vertical velocity and jump again
     if (petY >= groundY) {
       petY = groundY;
       startJump();
     }
   }
 
-  // Draw the bounding box in red to debug
+  // Draw bounding box for debugging
   ctx.strokeStyle = 'red';
   ctx.lineWidth = 2;
   ctx.strokeRect(petX, petY, width, height);
@@ -75,9 +74,10 @@ function animate() {
   ctx.save();
 
   if (facing === 1) {
-    // Flip horizontally around image center:
+    // Flip horizontally around center of image
     ctx.translate(petX + width / 2, petY + height / 2);
     ctx.scale(-1, 1);
+    // Draw image centered at 0,0, so top-left corner at -width/2, -height/2
     ctx.drawImage(petImg, -width / 2, -height / 2, width, height);
   } else {
     ctx.drawImage(petImg, petX, petY, width, height);
@@ -87,6 +87,7 @@ function animate() {
 
   requestAnimationFrame(animate);
 }
+
 
 
 petImg.onload = () => {
