@@ -5,8 +5,6 @@ const petImg = new Image();
 petImg.src = 'icon/icon-192.png';
 
 petImg.onload = () => {
-  animate();
-};
 
 let pet = {
   happiness: 50,
