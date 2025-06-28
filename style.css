@@ -1,5 +1,5 @@
 body {
-  background-color: transparent;
+  background-color: #000;
   color: #0f0;
   font-family: monospace, monospace;
   text-align: center;
@@ -26,4 +26,6 @@ button:hover {
   display: block;           /* Make canvas a block element */
   margin: 0 auto 1rem auto; /* Center horizontally, margin bottom 1rem */
   image-rendering: pixelated;
+  background-color: transparent;
+  
 }
