@@ -1,6 +1,10 @@
 const canvas = document.getElementById('pet-canvas');
 const ctx = canvas.getContext('2d');
 
+// Make sure canvas size is set explicitly
+canvas.width = 600;
+canvas.height = 300;
+
 const petImg = new Image();
 petImg.src = 'icon/icon-192.png';
 
@@ -11,15 +15,14 @@ const groundY = canvas.height - height - 20;
 let petX = canvas.width; // Start offscreen right
 let petY = groundY;
 
-let slidingIn = true;    // ADDED: slidingIn flag to start animation
-let vx = 0;              // ADDED: velocity X
-let vy = 0;              // ADDED: velocity Y
-const gravity = 0.4;     // ADDED: gravity constant
+let slidingIn = true;    // Flag for sliding in animation
+let vx = 0;              // Velocity X
+let vy = 0;              // Velocity Y
+const gravity = 0.4;     // Gravity constant
 
-let direction = -1; // movement direction: -1 = left, 1 = right
-let facing = -1;    // which way image is facing, start facing left (original image orientation)
+let direction = -1; // -1 = left, 1 = right
+let facing = -1;    // Image facing direction, start facing left
 
-// Jump function used in your original code (kept as-is)
 function startJump() {
   const speed = 6;
   const angle = Math.PI * 65 / 180;
@@ -27,7 +30,6 @@ function startJump() {
   vy = -speed * Math.sin(angle);
 }
 
-// Your animate function needs to be declared like this
 function animate() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -36,8 +38,8 @@ function animate() {
     if (petX <= canvas.width - width - 10) {
       petX = canvas.width - width - 10;
       slidingIn = false;
-      direction = -1; // keep moving left
-      facing = -1;    // face left as well
+      direction = -1;
+      facing = -1;
       startJump();
     }
   } else {
@@ -49,10 +51,12 @@ function animate() {
       petY = groundY;
 
       if (petX <= 0) {
+        petX = 0;
         direction = 1;
         facing = 1;
         startJump();
       } else if (petX + width >= canvas.width) {
+        petX = canvas.width - width;
         direction = -1;
         facing = -1;
         startJump();
@@ -61,17 +65,15 @@ function animate() {
       }
     }
 
-    // Update vx based on current direction for smooth movement
     vx = direction * Math.abs(vx);
   }
 
   ctx.save();
 
-  // Flip pet image horizontally if facing right
   if (facing === 1) {
-    ctx.translate(petX + width / 2, 0);
+    ctx.translate(petX + width / 2, petY + height / 2);
     ctx.scale(-1, 1);
-    ctx.translate(-(petX + width / 2), 0);
+    ctx.translate(-(petX + width / 2), -(petY + height / 2));
   }
 
   ctx.drawImage(petImg, petX, petY, width, height);
@@ -80,10 +82,12 @@ function animate() {
   requestAnimationFrame(animate);
 }
 
-// Start animation when image loads
 petImg.onload = () => {
   animate();
 };
+
+// Your other code below unchanged
+
 
 
 // The rest of your code (stats, interactions, background sync, push) stays the same...
