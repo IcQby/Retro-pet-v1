@@ -74,8 +74,6 @@ function animate() {
 }
 
 
-
-
 // Stats and interactions below (kept unchanged)
 
 let pet = {
