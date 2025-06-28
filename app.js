@@ -25,7 +25,7 @@ function updateStats() {
 function drawPet(x) {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   // Draw the icon image, adjust size as needed
-  ctx.drawImage(petImg, x, 60, 180, 180);
+  ctx.drawImage(petImg, x, 60, 192, 192);
 }
 
 function animate() {
