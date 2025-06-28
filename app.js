@@ -11,15 +11,15 @@ const groundY = canvas.height - height - 20;
 let petX = canvas.width; // Start offscreen right
 let petY = groundY;
 
-let slidingIn = true;
-
-let vx = 0;
-let vy = 0;
-const gravity = 0.4;
+let slidingIn = true;    // ADDED: slidingIn flag to start animation
+let vx = 0;              // ADDED: velocity X
+let vy = 0;              // ADDED: velocity Y
+const gravity = 0.4;     // ADDED: gravity constant
 
 let direction = -1; // movement direction: -1 = left, 1 = right
-let facing = -1;    // which way image is facing (start facing left)
+let facing = -1;    // which way image is facing, start facing left (original image orientation)
 
+// Jump function used in your original code (kept as-is)
 function startJump() {
   const speed = 6;
   const angle = Math.PI * 65 / 180;
@@ -27,12 +27,9 @@ function startJump() {
   vy = -speed * Math.sin(angle);
 }
 
-petImg.onload = () => {
-  animate();
-};
-
+// Your animate function needs to be declared like this
 function animate() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.clearRect(0, 0, canvas.width, canvas.height); // CLEAR CANVAS each frame
 
   if (slidingIn) {
     petX -= 2;
@@ -69,7 +66,7 @@ function animate() {
 
   ctx.save();
 
-  if (facing === 1) {
+  if (facing === 1) { // flip horizontally if facing right
     ctx.translate(petX + width / 2, 0);
     ctx.scale(-1, 1);
     ctx.translate(-(petX + width / 2), 0);
@@ -79,8 +76,14 @@ function animate() {
 
   ctx.restore();
 
-  requestAnimationFrame(animate);
+  requestAnimationFrame(animate);  // Loop animation
 }
+
+// Start animation when image loads
+petImg.onload = () => {
+  animate();
+};
+
 
 // The rest of your code (stats, interactions, background sync, push) stays the same...
 
