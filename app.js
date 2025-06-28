@@ -18,14 +18,14 @@ window.addEventListener('resize', () => {
 });
 
 // Constants for pet size
-const width = 204, height = 204;  // Actual image size
-const groundY = canvas.height - height - 20;
+const width = 102, height = 102;  // Actual image size
+const groundY = canvas.height - height - 120;
 
 // Pet image
 let petImgLeft = new Image();
 petImgLeft.src = 'icon/icon-192.png';
 
-let petX = canvas.width - width - 10, petY = groundY; // inside canvas
+let petX = canvas.width - width - 60, petY = groundY; // inside canvas
 let vx = 0, vy = 0, gravity = 0.4;
 let direction = -1, facing = -1;
 
