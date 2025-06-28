@@ -29,7 +29,6 @@ function startJump() {
   vx = direction * speed * Math.cos(angle);
   vy = -speed * Math.sin(angle);
 }
-
 function animate() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -45,29 +44,22 @@ function animate() {
   } else {
     vy += gravity;
 
-    // Predict next horizontal position
-    const nextX = petX + vx;
-
-    // Only bounce if pig is fully inside canvas horizontally
-    if (petX <= canvas.width - width) {
-      if (nextX < 0) {
-        petX = 0;
-        vx = Math.abs(vx);
-        direction = 1;
-        facing = 1;
-      } else if (nextX + width > canvas.width) {
-        petX = canvas.width - width;
-        vx = -Math.abs(vx);
-        direction = -1;
-        facing = -1;
-      } else {
-        petX = nextX;
-      }
-    } else {
-      // Still entering or just at boundary, so just move normally
-      petX = nextX;
+    // Predict next X position
+    let nextX = petX + vx;
+    // Check horizontal boundaries and bounce if needed
+    if (nextX <= 0) {
+      nextX = 0;
+      direction = 1;
+      facing = 1;
+      vx = Math.abs(vx);
+    } else if (nextX + width >= canvas.width) {
+      nextX = canvas.width - width;
+      direction = -1;
+      facing = -1;
+      vx = -Math.abs(vx);
     }
 
+    petX = nextX;
     petY += vy;
 
     if (petY >= groundY) {
@@ -89,6 +81,7 @@ function animate() {
 
   requestAnimationFrame(animate);
 }
+
 
 petImg.onload = () => {
   animate();
