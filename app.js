@@ -29,15 +29,15 @@ function startJump() {
 
 // Your animate function needs to be declared like this
 function animate() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height); // CLEAR CANVAS each frame
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   if (slidingIn) {
     petX -= 2;
     if (petX <= canvas.width - width - 10) {
       petX = canvas.width - width - 10;
       slidingIn = false;
-      direction = -1;
-      facing = -1;
+      direction = -1; // keep moving left
+      facing = -1;    // face left as well
       startJump();
     }
   } else {
@@ -49,12 +49,10 @@ function animate() {
       petY = groundY;
 
       if (petX <= 0) {
-        petX = 0;
         direction = 1;
         facing = 1;
         startJump();
       } else if (petX + width >= canvas.width) {
-        petX = canvas.width - width;
         direction = -1;
         facing = -1;
         startJump();
@@ -62,21 +60,24 @@ function animate() {
         startJump();
       }
     }
+
+    // Update vx based on current direction for smooth movement
+    vx = direction * Math.abs(vx);
   }
 
   ctx.save();
 
-  if (facing === 1) { // flip horizontally if facing right
+  // Flip pet image horizontally if facing right
+  if (facing === 1) {
     ctx.translate(petX + width / 2, 0);
     ctx.scale(-1, 1);
     ctx.translate(-(petX + width / 2), 0);
   }
 
   ctx.drawImage(petImg, petX, petY, width, height);
-
   ctx.restore();
 
-  requestAnimationFrame(animate);  // Loop animation
+  requestAnimationFrame(animate);
 }
 
 // Start animation when image loads
