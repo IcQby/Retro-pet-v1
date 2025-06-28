@@ -19,7 +19,7 @@ window.addEventListener('resize', () => {
 
 // Constants for pet size
 const width = 102, height = 102;  // Actual image size
-const groundY = canvas.height - (canvas.height / 9 * 2);  // Set to 1/4 of the canvas height
+const groundY = canvas.height - (canvas.height * 2 / 9);  // 2/9ths from the bottom of the canvas
 
 // Pet image
 let petImgLeft = new Image();
@@ -75,10 +75,10 @@ function animate() {
     vx = -Math.abs(vx);
   }
 
-  // Bounce off ground
+  // Bounce off ground (starting position is 2/9ths from bottom)
   if (petY >= groundY) {
     petY = groundY;
-    startJump();
+    startJump();  // Start jumping again once the pet hits the ground
   }
 
   // Draw the pet image based on facing direction with flipping
