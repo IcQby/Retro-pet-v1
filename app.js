@@ -8,11 +8,18 @@ petImg.src = 'icon/icon-192.png';
 const width = 204;
 const height = 204;
 
+const baseY = canvas.height / 2 - height / 2;
+const hopHeight = 40;
+
 let direction = -1; // start moving left
 let hopProgress = 0; // 0..1 for hop arc progress
 const maxHopSpeed = 0.008; // controls hop speed
 
 let petX = canvas.width; // start offscreen right
+
+petImg.onload = () => {
+  animate();
+};
 
 function animate() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
