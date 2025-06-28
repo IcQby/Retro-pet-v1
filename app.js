@@ -33,10 +33,13 @@ function startJump() {
 function animate() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+  const leftBound = 0;                // Left boundary line
+  const rightBound = canvas.width - width;  // Right boundary line
+
   if (slidingIn) {
     petX -= 2;
-    if (petX <= canvas.width - width - 10) {
-      petX = canvas.width - width - 10;
+    if (petX <= rightBound - 10) {  // slide in stops 10px before right bound
+      petX = rightBound - 10;
       slidingIn = false;
       direction = -1;
       facing = -1;
@@ -47,16 +50,14 @@ function animate() {
     petX += vx;
     petY += vy;
 
-    // Clamp petX inside bounds explicitly
-    if (petX < 0) petX = 0;
-    if (petX > canvas.width - width) petX = canvas.width - width;
-
-    // Bounce horizontally if pig hits canvas sides (even mid-air)
-    if (petX <= 0) {
+    // Bounce if hit left or right bounds
+    if (petX <= leftBound) {
+      petX = leftBound;
       direction = 1;
       facing = 1;
       vx = Math.abs(vx);
-    } else if (petX >= canvas.width - width) {
+    } else if (petX >= rightBound) {
+      petX = rightBound;
       direction = -1;
       facing = -1;
       vx = -Math.abs(vx);
@@ -68,7 +69,19 @@ function animate() {
     }
   }
 
-  console.log('petX:', petX, 'petX + width:', petX + width, 'canvas.width:', canvas.width);
+  // Draw hitbox boundary lines for debugging
+  ctx.strokeStyle = 'red';
+  ctx.lineWidth = 2;
+
+  ctx.beginPath();
+  ctx.moveTo(leftBound, 0);
+  ctx.lineTo(leftBound, canvas.height);
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.moveTo(rightBound + width, 0);  // right bound + width for clarity
+  ctx.lineTo(rightBound + width, canvas.height);
+  ctx.stroke();
 
   ctx.save();
 
@@ -76,24 +89,14 @@ function animate() {
     ctx.translate(petX + width, petY);
     ctx.scale(-1, 1);
     ctx.drawImage(petImg, 0, 0, width, height);
-
-    ctx.strokeStyle = 'red';
-    ctx.lineWidth = 2;
-    ctx.strokeRect(0, 0, width, height);
-
   } else {
     ctx.drawImage(petImg, petX, petY, width, height);
-
-    ctx.strokeStyle = 'red';
-    ctx.lineWidth = 2;
-    ctx.strokeRect(petX, petY, width, height);
   }
 
   ctx.restore();
 
   requestAnimationFrame(animate);
 }
-
 
 petImg.onload = () => {
   animate();
