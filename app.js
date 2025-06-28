@@ -21,47 +21,45 @@ petImg.onload = () => {
   animate();
 };
 
+let facing = -1; // direction of horizontal movement (left = -1, right = 1)
+
 function animate() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   if (petX > canvas.width - width) {
-    // Entering: move left linearly at fixed speed, no hop, no flip
-    petX -= 2; // speed of entering from right
+    // Entering: move left without hopping
+    petX -= 2;
   } else {
-    // Fully inside: update hopProgress for arc (0..1 back and forth)
-    hopProgress += direction * maxHopSpeed;
-    if (hopProgress >= 1) {
-      hopProgress = 1;
-      direction = -1;
-    } else if (hopProgress <= 0) {
+    // Hopping: progress hop arc
+    hopProgress += maxHopSpeed;
+    if (hopProgress > 1) {
       hopProgress = 0;
-      direction = 1;
     }
 
-    // Move horizontally with speed modulated by hop phase (cosine)
+    // Calculate speed with cosine curve for hop
     const speedMultiplier = Math.abs(Math.cos(Math.PI * hopProgress));
     const hopSpeed = 3 * speedMultiplier;
-    petX += direction * hopSpeed;
+    petX += hopSpeed * facing;
 
-    // Clamp petX to edges and flip direction if needed
+    // Bounce off edges
     if (petX <= 0) {
       petX = 0;
-      direction = 1;
+      facing = 1;
     } else if (petX + width >= canvas.width) {
       petX = canvas.width - width;
-      direction = -1;
+      facing = -1;
     }
   }
 
-  // Vertical position: baseY if entering, otherwise arc
+  // Calculate vertical arc position
   const petY = petX > canvas.width - width
     ? baseY
     : baseY - Math.sin(Math.PI * hopProgress) * hopHeight;
 
   ctx.save();
 
-  // Flip horizontally only when fully inside and moving left
-  if (petX <= canvas.width - width && direction === -1) {
+  // Flip image when facing left and already inside screen
+  if (facing === -1 && petX <= canvas.width - width) {
     ctx.translate(petX + width / 2, 0);
     ctx.scale(-1, 1);
     ctx.translate(-(petX + width / 2), 0);
@@ -72,6 +70,7 @@ function animate() {
 
   requestAnimationFrame(animate);
 }
+
 
 
 // Stats and interactions below (kept unchanged)
