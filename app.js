@@ -15,11 +15,11 @@ let slidingIn = true;
 let vx = 0;
 let vy = 0;
 let gravity = 0.4;
-let direction = -1; // -1 = left, 1 = right
+let direction = 1; // -1 = left, 1 = right
 let jumping = false;
 
 function startJump() {
-  const jumpDuration = 1.7 * 60; // 1.7 seconds at ~60fps
+  const jumpDuration = 1.9 * 60; // 1.7 seconds at ~60fps
   const jumpSpeed = 6;
   const angle = Math.PI * 65 / 180;
   vx = direction * jumpSpeed * Math.cos(angle);
