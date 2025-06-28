@@ -1,6 +1,6 @@
 const canvas = document.getElementById('pet-canvas');
 const ctx = canvas.getContext('2d');
-canvas.width = 500;
+canvas.width = 600;
 canvas.height = 300;
 
 const width = 100, height = 100;
