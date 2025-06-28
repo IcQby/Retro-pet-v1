@@ -11,22 +11,16 @@ let pet = {
   health: 50,
 };
 
-// Hop parameters
-const hopWidth = 100;  // horizontal length of one hop arc (pixels)
-const hopHeight = 40;  // max height of hop (pixels)
-const hopDuration = 1700; // ms per hop (1.7 seconds)
+const hopWidth = 100;
+const hopHeight = 40;
+const hopDuration = 1700; // ms for one hop
 
-// Calculated parameters
-const fps = 60; // approx
-const framesPerHop = (hopDuration / 1000) * fps;
-const baseSpeed = hopWidth / framesPerHop; // base horizontal speed per frame if linear
+let petDirection = 1; // 1 for right, -1 for left
+let petFlip = false;
 
-// Animation state
-let petX = 0;
-let petDirection = 1; // 1: moving right, -1: moving left
-let petFlip = false;  // whether image is flipped horizontally
+let hopProgress = 0;  // 0..1 progress in current hop
+let petXStart = 0;    // starting x position of current hop
 
-// Time tracking for smooth animation
 let lastTime = null;
 
 function updateStats() {
@@ -40,11 +34,11 @@ function drawPet(x, y) {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   const width = 204;
   const height = 204;
-  
+
   ctx.save();
 
   if (petFlip) {
-    // Flip horizontally around center of pet image
+    // flip horizontally around center of pet
     ctx.translate(x + width / 2, 0);
     ctx.scale(-1, 1);
     ctx.translate(-x - width / 2, 0);
@@ -56,40 +50,48 @@ function drawPet(x, y) {
 
 function animate(timestamp) {
   if (!lastTime) lastTime = timestamp;
-  const deltaTime = timestamp - lastTime; // ms elapsed since last frame
+  const deltaTime = timestamp - lastTime;
   lastTime = timestamp;
 
-  // Calculate hop phase [0,1] in current hop cycle based on petX mod hopWidth
-  let hopPhase = (petX % hopWidth) / hopWidth;
+  // Update hopProgress [0,1]
+  hopProgress += deltaTime / hopDuration;
+  if (hopProgress > 1) hopProgress = 1;
 
-  // We want horizontal speed to slow near the peak of the arc:
-  // Use derivative of sine arc shape to modulate speed, slowing near sin(pi * hopPhase) max at 0.5
-  // speed multiplier = cos(pi * hopPhase), which is 1 at 0, 0 at 0.5,  -1 at 1 (we take abs)
-  // We'll use absolute cosine to keep speed positive and symmetric
+  // Use easing to slow down horizontally near the peak
+  // speed modulated by |cos(pi * hopProgress)|, integrated over progress:
+  // But since we control position directly by hopProgress, we can just ease hopProgress with easing function
+  // Let's use an ease-in-out function for smooth progress:
+  // easeInOutSine: f(t) = 0.5 * (1 - cos(pi * t))
+  const easedProgress = 0.5 * (1 - Math.cos(Math.PI * hopProgress));
 
-  const speedMultiplier = Math.abs(Math.cos(Math.PI * hopPhase));
-  const speedThisFrame = baseSpeed * speedMultiplier;
+  // Calculate horizontal position based on start, direction and easedProgress
+  let petX = petXStart + petDirection * hopWidth * easedProgress;
 
-  // Update petX position
-  petX += petDirection * speedThisFrame * (deltaTime / (1000 / fps));
-
-  // Bounce at edges and flip image horizontally
-  if (petX + 204 > canvas.width) {
-    petX = canvas.width - 204;
-    petDirection = -1;
-    petFlip = true; // flip horizontally facing left
-  } else if (petX < 0) {
-    petX = 0;
-    petDirection = 1;
-    petFlip = false; // flip back facing right
-  }
-
-  // Calculate vertical position for smooth hop arc
-  hopPhase = (petX % hopWidth) / hopWidth;
+  // Calculate vertical position (arc)
   const baseY = canvas.height / 2 - 204 / 2;
-  const petY = baseY - Math.sin(Math.PI * hopPhase) * hopHeight;
+  const petY = baseY - Math.sin(Math.PI * hopProgress) * hopHeight;
 
   drawPet(petX, petY);
+
+  // If hop complete, reset for next hop
+  if (hopProgress >= 1) {
+    hopProgress = 0;
+
+    // Update petXStart for next hop
+    petXStart = petX;
+
+    // Check edges and flip direction and image if needed
+    if (petXStart + 204 >= canvas.width) {
+      petXStart = canvas.width - 204;
+      petDirection = -1;
+      petFlip = true;
+    } else if (petXStart <= 0) {
+      petXStart = 0;
+      petDirection = 1;
+      petFlip = false;
+    }
+  }
+
   requestAnimationFrame(animate);
 }
 
