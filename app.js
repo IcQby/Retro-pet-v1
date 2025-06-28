@@ -41,11 +41,11 @@ startJump();
 // Draw background with pastel green (ground) and light blue (air)
 function drawBackground() {
   // Ground (pastel green)
-  ctx.fillStyle = '#90EE90';  // Pastel green color
+  ctx.fillStyle = '#90EE90';  // Pastel green color for the ground
   ctx.fillRect(0, canvas.height * 2 / 3, canvas.width, canvas.height / 3);
 
   // Air (light blue)
-  ctx.fillStyle = '#ADD8E6';  // Light blue color
+  ctx.fillStyle = '#ADD8E6';  // Light blue color for the sky
   ctx.fillRect(0, 0, canvas.width, canvas.height * 2 / 3);
 }
 
