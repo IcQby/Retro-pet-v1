@@ -70,15 +70,27 @@ function animate() {
   ctx.save();
 
 if (facing === 1) {
-  // Instead of flipping around center, flip around top-left and shift petX by width
+  // Move the origin to petX + width, petY and flip horizontally
   ctx.translate(petX + width, petY);
   ctx.scale(-1, 1);
+  // Draw image at 0,0 because origin shifted
   ctx.drawImage(petImg, 0, 0, width, height);
+
+  // Draw bounding box at flipped position too (debug)
+  ctx.strokeStyle = 'red';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(0, 0, width, height);
+
 } else {
+  // Normal draw and bounding box
   ctx.drawImage(petImg, petX, petY, width, height);
+  ctx.strokeStyle = 'red';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(petX, petY, width, height);
 }
 
 ctx.restore();
+
 
 
   // Uncomment to debug position values in console:
