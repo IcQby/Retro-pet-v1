@@ -11,32 +11,17 @@ petImgLeft.src = 'icon/icon-192.png';
 
 let petImgRight = new Image();
 
-let petX = canvas.width - width - 10, petY = groundY; // inside canvas
-let vx = 0, vy = 0, gravity = 0.4;
-let direction = -1, facing = -1;
+let petX = canvas.width / 2 - width / 2; // Start centered horizontally
+let petY = groundY; // On the ground
+let vx = 0, vy = 0;
+let direction = -1; // Start moving left
+let facing = direction;
 
 function startJump() {
   const speed = 6, angle = Math.PI * 65 / 180;
   vx = direction * speed * Math.cos(angle);
   vy = -speed * Math.sin(angle);
 }
-
-// Create flipped right-facing image from left-facing once loaded
-petImgLeft.onload = () => {
-  const off = document.createElement('canvas');
-  off.width = width;
-  off.height = height;
-  const offctx = off.getContext('2d');
-  offctx.translate(width, 0);
-  offctx.scale(-1, 1);
-  offctx.drawImage(petImgLeft, 0, 0, width, height);
-  petImgRight.src = off.toDataURL();
-
-  petImgRight.onload = () => {
-    startJump();
-    requestAnimationFrame(animate);
-  };
-};
 
 function animate() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -45,6 +30,7 @@ function animate() {
   petX += vx;
   petY += vy;
 
+  // Clamp horizontal position & reverse velocity/direction on edges
   if (petX <= 0) {
     petX = 0;
     direction = 1;
@@ -57,9 +43,13 @@ function animate() {
     vx = -Math.abs(vx);
   }
 
+  // Clamp vertical position to ground and ceiling
   if (petY >= groundY) {
     petY = groundY;
     startJump();
+  } else if (petY < 0) {
+    petY = 0;
+    vy = 0; // Stop going above top
   }
 
   ctx.strokeStyle = 'red';
@@ -74,6 +64,7 @@ function animate() {
 
   requestAnimationFrame(animate);
 }
+
 
 // --- Stats and interactions below (unchanged) ---
 
