@@ -31,9 +31,10 @@ let direction = -1, facing = -1;
 
 // Function to start jumping
 function startJump() {
+  // Set initial jump velocity so it starts from 2/9ths of the canvas height.
   const speed = 6, angle = Math.PI * 65 / 180;
   vx = direction * speed * Math.cos(angle);
-  vy = -speed * Math.sin(angle);
+  vy = -speed * Math.sin(angle); // Jump starts upward (negative velocity)
 }
 
 startJump();
