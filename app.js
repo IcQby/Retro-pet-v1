@@ -48,24 +48,28 @@ function animate() {
     // Predict next horizontal position
     const nextX = petX + vx;
 
-    // Horizontal bounce check BEFORE moving
-    if (nextX < 0) {
-      petX = 0;
-      vx = Math.abs(vx);
-      direction = 1;
-      facing = 1;
-    } else if (nextX + width > canvas.width) {
-      petX = canvas.width - width;
-      vx = -Math.abs(vx);
-      direction = -1;
-      facing = -1;
+    // Only bounce if pig is fully inside canvas horizontally
+    if (petX <= canvas.width - width) {
+      if (nextX < 0) {
+        petX = 0;
+        vx = Math.abs(vx);
+        direction = 1;
+        facing = 1;
+      } else if (nextX + width > canvas.width) {
+        petX = canvas.width - width;
+        vx = -Math.abs(vx);
+        direction = -1;
+        facing = -1;
+      } else {
+        petX = nextX;
+      }
     } else {
+      // Still entering or just at boundary, so just move normally
       petX = nextX;
     }
 
     petY += vy;
 
-    // Bounce vertically on ground
     if (petY >= groundY) {
       petY = groundY;
       startJump();
