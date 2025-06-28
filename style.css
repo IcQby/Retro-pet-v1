@@ -1,9 +1,10 @@
 body {
-  background: linear-gradient(to bottom, #add8e6 0%, #add8e6 66%, #90ee90 66%, #90ee90 100%);
-  font-family: Arial, sans-serif;
+  background-color: #000;
+  color: #0f0;
+  font-family: monospace, monospace;
+  text-align: center;
   margin: 0;
-  padding: 0;
-
+  padding: 0; /* Removed padding to eliminate left gap */
 }
 
 button {
