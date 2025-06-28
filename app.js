@@ -1,6 +1,9 @@
 const canvas = document.getElementById('pet-canvas');
 const ctx = canvas.getContext('2d');
 
+const petImg = new Image();
+petImg.src = 'icon-192.png';  // Your icon file
+
 let pet = {
   happiness: 50,
   hunger: 50,
@@ -21,52 +24,10 @@ function updateStats() {
 
 function drawPet(x) {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-  // Body
-  ctx.fillStyle = '#ff99cc';
-  ctx.fillRect(x + 20, 60, 120, 80);
-
-  // Head
-  ctx.fillRect(x + 60, 20, 80, 60);
-
-  // Ears
-  ctx.fillStyle = '#ff66aa';
-  ctx.beginPath();
-  ctx.moveTo(x + 60, 20);
-  ctx.lineTo(x + 50, 10);
-  ctx.lineTo(x + 70, 20);
-  ctx.fill();
-
-  ctx.beginPath();
-  ctx.moveTo(x + 140, 20);
-  ctx.lineTo(x + 150, 10);
-  ctx.lineTo(x + 130, 20);
-  ctx.fill();
-
-  // Eyes
-  ctx.fillStyle = 'black';
-  ctx.beginPath();
-  ctx.arc(x + 90, 50, 8, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.beginPath();
-  ctx.arc(x + 130, 50, 8, 0, Math.PI * 2);
-  ctx.fill();
-
-  // Nose
-  ctx.fillStyle = '#ff66aa';
-  ctx.beginPath();
-  ctx.ellipse(x + 110, 80, 20, 10, 0, 0, Math.PI * 2);
-  ctx.fill();
-
-  // Legs
-  ctx.fillStyle = '#ff99cc';
-  ctx.fillRect(x + 30, 140, 20, 30);
-  ctx.fillRect(x + 70, 140, 20, 30);
-  ctx.fillRect(x + 110, 140, 20, 30);
-  ctx.fillRect(x + 150, 140, 20, 30);
+  // Draw the icon image, adjust size as needed
+  ctx.drawImage(petImg, x, 60, 180, 180);
 }
 
-// Animation loop
 function animate() {
   petX += petVX;
 
@@ -162,6 +123,13 @@ function urlBase64ToUint8Array(base64String) {
 // Initialize app
 window.onload = () => {
   updateStats();
-  animate();
+
+  // Start animation only after image loaded
+  if (petImg.complete) {
+    animate();
+  } else {
+    petImg.onload = animate;
+  }
+
   askPushPermissionAndSubscribe();
 };
