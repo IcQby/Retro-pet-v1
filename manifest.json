@@ -15,8 +15,7 @@
   "iarc_rating_id": "europe.pegi.3",
   "launch_handler": {
     "client_mode": "navigate"
-  }
-  ],
+  },
   "icons": [
     {
       "src": "icon/icon-192.png",
