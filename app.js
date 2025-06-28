@@ -8,57 +8,50 @@ petImg.src = 'icon/icon-192.png';
 const width = 204;
 const height = 204;
 
-let petX = canvas.width - width; // start right side
-let direction = -1; // 1 = right, -1 = left
-
-const hopWidth = 200; // hop horizontal length in px (farther jump)
-const hopHeight = 40; // vertical arc height
-const baseY = canvas.height / 2 - height / 2; // vertical base position
-
-petImg.onload = () => {
-  animate();
-};
+let direction = -1; // start going left
+let hopProgress = 1; // 0 to 1, start at the right side (1 means hop completed, about to flip)
+const hopWidth = 200;
+const hopHeight = 40;
+const baseY = canvas.height / 2 - height / 2;
+const maxSpeed = 0.008; // hop progress increment per frame (tweak for speed)
 
 function animate() {
-  // Calculate hopPhase (0 to 1)
-  let relativeX = ((petX % hopWidth) + hopWidth) % hopWidth;
-  const hopPhase = relativeX / hopWidth;
+  // Update hopProgress
+  hopProgress += direction * maxSpeed;
 
-  // Horizontal speed: max at edges (0 and 1), min at apex (0.5)
-  const speedMultiplier = Math.abs(Math.cos(Math.PI * hopPhase));
-  const maxSpeed = 3;
-  const effectiveSpeed = maxSpeed * speedMultiplier;
-
-  petX += direction * effectiveSpeed;
-
-  // Bounce and flip at edges
-  if (petX + width > canvas.width) {
-    direction = -1;
-    petX = canvas.width - width;
-  } else if (petX < 0) {
-    direction = 1;
-    petX = 0;
+  // Clamp and flip direction if completed hop
+  if (hopProgress >= 1) {
+    hopProgress = 1;
+    direction = -1; // go left
+  } else if (hopProgress <= 0) {
+    hopProgress = 0;
+    direction = 1;  // go right
   }
 
-  // Vertical hop arc (sine wave)
-  const petY = baseY - Math.sin(Math.PI * hopPhase) * hopHeight;
+  // Calculate petX position based on hopProgress and direction
+  petX = direction === 1
+    ? hopProgress * (canvas.width - width)
+    : (1 - hopProgress) * (canvas.width - width);
+
+  // Calculate vertical arc (sin wave)
+  const petY = baseY - Math.sin(Math.PI * hopProgress) * hopHeight;
 
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.save();
 
+  // Flip image horizontally if going left
   if (direction === -1) {
-    // Flip horizontally around pet center:
     ctx.translate(petX + width / 2, 0);
     ctx.scale(-1, 1);
     ctx.translate(-(petX + width / 2), 0);
   }
 
   ctx.drawImage(petImg, petX, petY, width, height);
-
   ctx.restore();
 
   requestAnimationFrame(animate);
 }
+
 
 // Stats and interactions below (kept unchanged)
 
