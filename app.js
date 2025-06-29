@@ -1,3 +1,4 @@
+// javascript name=app.js
 const canvas = document.getElementById('pet-canvas');
 const ctx = canvas.getContext('2d');
 
@@ -23,7 +24,7 @@ const groundY = canvas.height - height ;  // Set ground to the bottom based on 1
 
 // Pet image
 let petImgLeft = new Image();
-petImgLeft.src = 'icon/icon-192.png';
+petImgLeft.src = 'icon/pig-left.png';
 
 let petX = canvas.width - width - 10, petY = groundY; // inside canvas
 let vx = 0, vy = 0, gravity = 0.4;
@@ -200,3 +201,4 @@ window.onload = () => {
   updateStats();
   askPushPermissionAndSubscribe();
 };
+```
